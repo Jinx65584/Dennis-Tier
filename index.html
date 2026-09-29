@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dennis Tier - Bảng Xếp Hạng & Tier List Minecraft PvP</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2canvas -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- Google Font: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        pinkAccent: '#f472b6',
+                        pinkDark: '#db2777',
+                        pinkLight: '#fbcfe8',
+                        darkBg: '#0f172a',
+                        cardDark: '#1e293b',
+                        borderDark: '#334155'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(244, 114, 182, 0.08) 0%, rgba(15, 23, 42, 1) 70%),
+                radial-gradient(circle at 90% 80%, rgba(51, 65, 85, 0.4) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* TÙY CHỈNH THANH CUỘN TRANG GỐC */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Cấp độ 1: Vàng sáng mặc định */
+        .tier-circle-tier1 {
+            border: 4px solid #eab308;
+            background-color: rgba(254, 252, 232, 0.1);
+        }
+        .tier-label-tier1 {
+            background-color: rgba(234, 179, 8, 0.2);
+            color: #fde047;
+        }
+
+        /* Cấp độ 2: Xám xanh */
+        .tier-circle-tier2 {
+            border: 4px solid rgba(148, 163, 184, 0.6);
+            background-color: rgba(241, 245, 249, 0.1);
+        }
+        .tier-label-tier2 {
+            background-color: rgba(100, 116, 139, 0.3);
+            color: #cbd5e1;
+        }
+
+        /* Cấp độ 3: Nâu cam */
+        .tier-circle-tier3 {
+            border: 4px solid rgba(217, 119, 6, 0.6);
+            background-color: rgba(254, 243, 199, 0.1);
+        }
+        .tier-label-tier3 {
+            background-color: rgba(194, 95, 23, 0.3);
+            color: #fdba74;
+        }
+
+        /* Cấp độ 4: Xanh lá */
+        .tier-circle-tier4 {
+            border: 4px solid rgba(74, 222, 128, 0.6);
+            background-color: rgba(240, 253, 244, 0.1);
+        }
+        .tier-label-tier4 {
+            background-color: rgba(22, 101, 52, 0.3);
+            color: #86efac;
+        }
+
+        /* Cấp độ 5: Xám */
+        .tier-circle-tier5 {
+            border: 4px solid rgba(209, 213, 219, 0.6);
+            background-color: rgba(249, 250, 251, 0.1);
+        }
+        .tier-label-tier5 {
+            background-color: rgba(107, 114, 128, 0.3);
+            color: #d1d5db;
+        }
+
+        .tier-circle-empty {
+            border: 4px dashed rgba(100, 116, 139, 0.4);
+            background-color: transparent;
+            opacity: 0.5;
+        }
+        .tier-label-empty {
+            background-color: rgba(30, 41, 59, 0.6);
+            color: #64748b;
+            opacity: 0.7;
+        }
+
+        .drag-item.dragging { opacity: 0.4; scale: 0.95; }
+        .tier-row.drag-over { background-color: rgba(244, 114, 182, 0.15); }
+
+        /* ĐỊNH DẠNG MỖI DÒNG PLAYER THÀNH MỘT KHUNG CARD RIÊNG BIỆT CÓ ĐƯỜNG VIỀN BO TRÒN */
+        .player-row {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+            border: 1px solid #334155;
+            background-color: rgba(30, 41, 59, 0.5);
+            border-radius: 1rem;
+            margin-bottom: 12px;
+        }
+        .player-row:hover {
+            transform: scale(1.01);
+            background-color: #1e293b !important;
+            border-color: #f472b6;
+            box-shadow: 0 10px 25px -5px rgba(244, 114, 182, 0.15), 0 8px 10px -6px rgba(244, 114, 182, 0.1);
+            z-index: 20;
+            position: relative;
+        }
+
+        /* Moon Halo Effect - Đã chỉnh cho icon nhỏ hơn và xích xuống dưới */
+        .mode-icon-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 9999px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 8px; /* Xích xuống một tí */
+        }
+
+        .mode-btn:hover .mode-icon-wrapper::before,
+        .mode-btn.active .mode-icon-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 56px;
+            height: 56px;
+            border-radius: 9999px;
+            border: 1px solid rgba(244, 114, 182, 0.4);
+            background: radial-gradient(circle, rgba(244, 114, 182, 0.25) 0%, rgba(30, 41, 59, 0.35) 50%, transparent 80%);
+            box-shadow: 0 0 14px rgba(244, 114, 182, 0.25);
+            pointer-events: none;
+            animation: haloPulse 3s infinite ease-in-out;
+        }
+
+        @keyframes haloPulse {
+            0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.8; }
+        }
+
+        .mode-btn:hover img,
+        .mode-btn.active img {
+            filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.8));
+            transform: scale(1.12);
+        }
+
+        .mode-btn:hover span,
+        .mode-btn.active span {
+            color: #f472b6;
+            text-shadow: 0 0 10px rgba(244, 114, 182, 0.4);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-pink-500 selection:text-white">
+
+    <!-- Ambient background glow -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[450px] bg-pink-500/10 blur-[160px] pointer-events-none rounded-full z-0"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="w-full border-b border-slate-800 bg-[#0f172a]/85 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <div class="max-w-[1500px] mx-auto px-6 sm:px-10 lg:px-12">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center space-x-12">
+                    <a href="#" class="flex items-center space-x-3.5 group">
+                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-pink-400 via-pink-500 to-rose-500 flex items-center justify-center font-black text-2xl text-white shadow-md shadow-pink-500/20 group-hover:scale-105 transition-transform duration-200">
+                            D
+                        </div>
+                        <div>
+                            <span class="font-black text-xl tracking-wider bg-gradient-to-r from-white via-pink-300 to-rose-400 bg-clip-text text-transparent">DENNIS TIER</span>
+                            <span class="block text-xs tracking-widest text-pink-400 font-bold uppercase">PvP Leaderboard</span>
+                        </div>
+                    </a>
+                    
+                    <div class="hidden md:flex items-center space-x-10 text-base font-bold">
+                        <button onclick="switchMainView('leaderboard')" id="navBtnLeaderboard" class="text-pink-400 font-extrabold flex items-center gap-2 border-b-2 border-pink-400 pb-1 transition-all duration-300">
+                            <i class="fa-solid fa-list-ol text-sm text-pink-400"></i> Bảng Xếp Hạng
+                        </button>
+                        <a href="https://discord.gg" target="_blank" class="text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1">
+                            <i class="fa-brands fa-discord text-lg"></i> Discord
+                        </a>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-5">
+                    <div class="relative w-56 sm:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input id="searchInput" type="text" placeholder="Tìm người chơi..." 
+                            class="w-full bg-slate-900/80 text-sm text-white pl-11 pr-4 py-2.5 rounded-xl border border-slate-700 focus:outline-none focus:border-pink-400 shadow-inner transition-all placeholder:text-slate-500">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-[1500px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-8 relative z-10">
+        
+        <!-- Header Banner Title -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+                <div class="flex items-center gap-2 text-pink-400 font-bold text-sm tracking-widest uppercase mb-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-pink-400 animate-ping"></span>
+                    Hệ thống xếp hạng PvP mùa giải
+                </div>
+                <h1 id="viewTitle" class="text-3xl sm:text-4xl font-black text-white tracking-tight">Bảng Xếp Hạng</h1>
+                <p id="viewSubtitle" class="text-slate-400 text-sm mt-1.5">Khám phá thứ hạng và điểm số của các chiến binh hàng đầu trong từng chế độ.</p>
+            </div>
+        </div>
+
+        <!-- Mode Tabs -->
+        <div class="mb-6 overflow-x-auto no-scrollbar relative">
+            <div id="modeTabsWrapper" class="flex justify-between items-center px-6 w-full min-w-[900px] py-4 relative">
+                <!-- Tabs injected by JS -->
+            </div>
+        </div>
+
+        <!-- VIEW 1: Leaderboard Container -->
+        <div id="leaderboardView" class="space-y-3">
+            <div class="flex items-center text-sm font-extrabold text-slate-400 tracking-wider uppercase px-8 py-3 bg-slate-800/30 rounded-xl mb-4 border border-slate-800">
+                <div class="w-24 text-center flex-shrink-0">#</div>
+                <div class="w-1/3 flex-shrink-0">PLAYER</div>
+                <div class="w-44 text-left flex-shrink-0">POINTS</div>
+                <div class="flex-1">TIERS</div>
+                <div class="w-24 text-center flex-shrink-0"></div>
+            </div>
+
+            <div id="leaderboardBody" class="flex flex-col text-base font-semibold">
+                <!-- Rows rendered via JavaScript -->
+            </div>
+
+            <div id="emptyState" class="hidden py-20 text-center">
+                <i class="fa-solid fa-ghost text-5xl text-slate-600 mb-3 block"></i>
+                <p class="text-slate-300 font-bold text-base">Không tìm thấy người chơi nào</p>
+                <p class="text-slate-500 text-sm mt-1">Hãy thử tìm kiếm tên khác.</p>
+            </div>
+        </div>
+
+        <!-- VIEW 2: Interactive Drag & Drop Tier List Maker -->
+        <div id="tierlistView" class="hidden space-y-6">
+            <div class="flex items-center justify-between bg-slate-900/80 p-5 rounded-2xl border border-slate-800 shadow-sm">
+                <span class="text-sm font-semibold text-slate-300">Chế độ Drag & Drop: Kéo thả avatar nhân vật vào các bậc Tier tương ứng</span>
+                <button onclick="exportTierlistImage()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-extrabold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-colors shadow-md shadow-emerald-600/20">
+                    <i class="fa-solid fa-download"></i> Xuất Ảnh
+                </button>
+            </div>
+
+            <div id="tierlistBoard" class="space-y-3.5 bg-slate-900/80 p-6 rounded-2xl border border-slate-800 shadow-sm backdrop-blur-md">
+                <!-- Tier rows generated dynamically -->
+            </div>
+
+            <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-sm">
+                <h3 class="text-sm font-extrabold text-pink-400 uppercase tracking-wider mb-4">Kho Người Chơi Chưa Phân Tier</h3>
+                <div id="unassignedPool" class="flex flex-wrap gap-3.5 min-h-[80px] p-5 bg-slate-800/40 rounded-xl border border-slate-800">
+                    <!-- Cards rendered dynamically -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-slate-800 bg-[#0f172a]/80 py-8 text-center text-sm text-slate-500 relative z-10">
+        <div class="max-w-[1500px] mx-auto px-6 sm:px-10 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>© 2026 DENNIS TIER - Minecraft PvP Ranking System. All rights reserved.</p>
+            <div class="flex items-center space-x-6 font-semibold">
+                <a href="#" class="hover:text-pink-400 transition-colors">Điều khoản</a>
+                <a href="#" class="hover:text-pink-400 transition-colors">Bảo mật</a>
+                <a href="https://discord.gg" target="_blank" class="hover:text-pink-400 transition-colors">Discord Community</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL: Edit Player Modal -->
+    <div id="playerModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl p-6 relative">
+            <button onclick="closeModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h2 id="modalTitle" class="text-xl font-bold text-white mb-4">Chỉnh Sửa Player</h2>
+            
+            <form id="playerForm" onsubmit="handleFormSubmit(event)" class="space-y-5">
+                <input type="hidden" id="editIndex" value="-1">
+                
+                <div>
+                    <label class="block text-sm font-bold text-pink-400 mb-1.5">Tên Minecraft Username</label>
+                    <input type="text" id="inputUsername" readonly 
+                        class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-pink-400 mb-1.5">Tổng Điểm (Points)</label>
+                    <input type="number" id="inputPoints" readonly 
+                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-400 focus:outline-none cursor-not-allowed font-bold">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-pink-400 mb-2">Cấu hình Tier cho từng Mode</label>
+                    <div id="tierInputs" class="grid grid-cols-2 gap-3 max-h-52 overflow-y-auto pr-1">
+                        <!-- Tier selectors injected dynamically -->
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 text-sm font-bold text-slate-400 hover:text-white">Hủy</button>
+                    <button type="submit" class="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-5 py-2.5 rounded-xl text-sm font-extrabold transition-all shadow-md shadow-pink-500/20">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const TIER_POINTS = {
+            'HT1': 60,
+            'LT1': 45,
+            'HT2': 30,
+            'LT2': 20,
+            'HT3': 10,
+            'LT3': 6,
+            'HT4': 4,
+            'LT4': 3,
+            'HT5': 2,
+            'LT5': 1
+        };
+
+        function calculatePlayerPoints(tiersObj) {
+            if (!tiersObj) return 0;
+            let total = 0;
+            for (const modeId in tiersObj) {
+                const tierVal = tiersObj[modeId];
+                if (tierVal && TIER_POINTS[tierVal]) {
+                    total += TIER_POINTS[tierVal];
+                }
+            }
+            return total;
+        }
+
+        const defaultModes = [
+            { id: 'overall', name: 'OVERALL', icon: 'https://api.iconify.design/twemoji:trophy.svg' },
+            { id: 'sword', name: 'SWORD', icon: 'https://cdn.discordapp.com/emojis/1549311745951010867.webp?size=48&quality=lossless' },
+            { id: 'nethot', name: 'NETHOP', icon: 'https://cdn.discordapp.com/emojis/1549311747725336598.webp?size=48&quality=lossless' },
+            { id: 'smp', name: 'SMP', icon: 'https://cdn.discordapp.com/emojis/1549311750254493696.webp?size=48&quality=lossless' },
+            { id: 'uhc', name: 'UHC', icon: 'https://cdn.discordapp.com/emojis/1549311742000103443.webp?size=48&quality=lossless' },
+            { id: 'axe', name: 'AXE', icon: 'https://cdn.discordapp.com/emojis/1549311752771084348.webp?size=48&quality=lossless' },
+            { id: 'vanilla', name: 'VANILLA', icon: 'https://cdn.discordapp.com/emojis/1549311743975497759.webp?size=48&quality=lossless' },
+            { id: 'mace', name: 'MACE', icon: 'https://cdn.discordapp.com/emojis/1549311739462422558.webp?size=48&quality=lossless' }
+        ];
+
+        const defaultPlayers = [
+            {
+                username: 'PhamQuocDat',
+                tiers: { sword: 'HT1', nethot: 'HT3', smp: 'LT4', uhc: 'LT2', axe: 'LT2', vanilla: 'LT2', mace: 'LT3' }
+            },
+            {
+                username: 'Dennis_25',
+                tiers: { sword: 'HT1', uhc: 'LT1' }
+            },
+            {
+                username: 'thekidpika',
+                tiers: { sword: 'HT2', nethot: 'LT3', axe: 'HT3', vanilla: 'HT3' }
+            },
+            {
+                username: 'Ghost_kevinn',
+                tiers: { sword: 'LT2', nethot: 'LT3', smp: 'LT3', uhc: 'LT3', axe: 'HT3', vanilla: 'HT4', mace: 'HT4' }
+            },
+            {
+                username: 'NguyenVanVy',
+                tiers: { sword: 'LT3', nethot: 'LT3', smp: 'LT3', uhc: 'LT3', axe: 'HT3', vanilla: 'LT3' }
+            },
+            {
+                username: 'TrungTrungRuoiBu',
+                tiers: { sword: 'LT3', nethot: 'LT3', smp: 'HT3', uhc: 'LT3', axe: 'LT3', vanilla: 'LT3' }
+            }
+        ];
+
+        let modes = JSON.parse(localStorage.getItem('dennis_modes')) || defaultModes;
+        let players = JSON.parse(localStorage.getItem('dennis_players')) || defaultPlayers;
+
+        players.forEach(p => {
+            p.points = calculatePlayerPoints(p.tiers);
+        });
+
+        let activeTab = 'overall';
+        let searchQuery = '';
+        let currentView = 'leaderboard';
+
+        const TIER_RANKS = ['HT1', 'HT2', 'HT3', 'HT4', 'HT5', 'LT1', 'LT2', 'LT3', 'LT4', 'LT5'];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTabs();
+            renderLeaderboard();
+            setupSearchListener();
+            setupModalTierInputs();
+        });
+
+        function switchMainView(view) {
+            currentView = view;
+            const lbView = document.getElementById('leaderboardView');
+            const tlView = document.getElementById('tierlistView');
+            const btnLb = document.getElementById('navBtnLeaderboard');
+            const title = document.getElementById('viewTitle');
+            const subtitle = document.getElementById('viewSubtitle');
+
+            if (view === 'leaderboard') {
+                lbView.classList.remove('hidden');
+                tlView.classList.add('hidden');
+                btnLb.className = "text-pink-400 font-extrabold flex items-center gap-2 border-b-2 border-pink-400 pb-1 transition-all duration-300";
+                title.innerText = "Bảng Xếp Hạng";
+                subtitle.innerText = "Khám phá thứ hạng và điểm số của các chiến binh hàng đầu trong từng chế độ.";
+                renderLeaderboard();
+            } else {
+                lbView.classList.add('hidden');
+                tlView.classList.remove('hidden');
+                btnLb.className = "text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1";
+                title.innerText = "Tier List Maker";
+                subtitle.innerText = `Kéo thả xếp hạng người chơi cho Chế độ: ${activeTab.toUpperCase()}`;
+                renderTierlistMaker();
+            }
+        }
+
+        function renderTabs() {
+            const wrapper = document.getElementById('modeTabsWrapper');
+            wrapper.innerHTML = '';
+
+            modes.forEach(mode => {
+                const isActive = activeTab === mode.id;
+                const activeClass = isActive ? 'active' : '';
+
+                const btn = document.createElement('button');
+                btn.onclick = () => switchTab(mode.id);
+                
+                btn.className = `mode-btn relative flex-1 flex flex-col items-center justify-center gap-1.5 py-2 transition-all duration-300 group ${activeClass}`;
+                
+                btn.innerHTML = `
+                    <div class="mode-icon-wrapper">
+                        <img src="${mode.icon}" class="w-7 h-7 object-contain drop-shadow-sm transition-transform duration-300" alt="${mode.name}" onerror="this.src='https://api.iconify.design/twemoji:trophy.svg'">
+                    </div>
+                    <span class="text-sm tracking-wider font-extrabold text-slate-400 transition-all duration-300 inline-block mt-0.5">${mode.name}</span>
+                `;
+                wrapper.appendChild(btn);
+            });
+        }
+
+        function switchTab(modeId) {
+            if (activeTab === modeId) return;
+            activeTab = modeId;
+
+            renderTabs();
+
+            if (currentView === 'leaderboard') {
+                renderLeaderboard();
+            } else {
+                document.getElementById('viewSubtitle').innerText = `Kéo thả xếp hạng người chơi cho Chế độ: ${activeTab.toUpperCase()}`;
+                renderTierlistMaker();
+            }
+        }
+
+        function getTierClass(tierVal) {
+            const cleanVal = tierVal.toUpperCase();
+            if (cleanVal.endsWith('1')) return { circle: 'tier-circle-tier1', label: 'tier-label-tier1' };
+            if (cleanVal.endsWith('2')) return { circle: 'tier-circle-tier2', label: 'tier-label-tier2' };
+            if (cleanVal.endsWith('3')) return { circle: 'tier-circle-tier3', label: 'tier-label-tier3' };
+            if (cleanVal.endsWith('4')) return { circle: 'tier-circle-tier4', label: 'tier-label-tier4' };
+            if (cleanVal.endsWith('5')) return { circle: 'tier-circle-tier5', label: 'tier-label-tier5' };
+            return { circle: 'tier-circle-tier2', label: 'tier-label-tier2' };
+        }
+
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboardBody');
+            const emptyState = document.getElementById('emptyState');
+
+            let filtered = players.filter(p => p.username.toLowerCase().includes(searchQuery.toLowerCase()));
+
+            if (activeTab === 'overall') {
+                filtered.sort((a, b) => b.points - a.points);
+            } else {
+                filtered.sort((a, b) => {
+                    const hasA = a.tiers && a.tiers[activeTab] ? 1 : 0;
+                    const hasB = b.tiers && b.tiers[activeTab] ? 1 : 0;
+                    if (hasA !== hasB) return hasB - hasA;
+                    return b.points - a.points;
+                });
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            container.innerHTML = filtered.map((player, idx) => {
+                const rank = idx + 1;
+                let rankDisplay = `<span class="text-slate-400 font-black text-xl">${rank}</span>`;
+                if (rank === 1) rankDisplay = `<span class="text-pink-400 font-black text-2xl">1</span>`;
+                if (rank === 2) rankDisplay = `<span class="text-rose-400 font-black text-2xl">2</span>`;
+                if (rank === 3) rankDisplay = `<span class="text-amber-400 font-black text-2xl">3</span>`;
+
+                const skinUrl = `https://vzge.me/bust/512/${player.username}`;
+
+                const badgesHtml = modes.filter(m => m.id !== 'overall').map(mode => {
+                    const tierVal = player.tiers ? player.tiers[mode.id] : null;
+                    
+                    if (!tierVal) {
+                        return `
+                            <div class="flex flex-col items-center gap-1.5 min-w-[52px]">
+                                <div class="w-12 h-12 rounded-full tier-circle-empty flex items-center justify-center">
+                                    <img src="${mode.icon}" class="w-6 h-6 object-contain opacity-50" alt="${mode.name}">
+                                </div>
+                                <span class="tier-label-empty text-xs font-black px-2.5 py-0.5 rounded-md leading-none">-</span>
+                            </div>
+                        `;
+                    }
+
+                    const tClass = getTierClass(tierVal);
+
+                    return `
+                        <div class="flex flex-col items-center gap-1.5 min-w-[52px] group relative">
+                            <div class="w-12 h-12 rounded-full ${tClass.circle} flex items-center justify-center shadow-sm hover:scale-105 transition-transform">
+                                <img src="${mode.icon}" class="w-6 h-6 object-contain" alt="${mode.name}">
+                            </div>
+                            <span class="${tClass.label} text-sm font-black px-2.5 py-0.5 rounded-md leading-none tracking-tight shadow-sm">${tierVal}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="player-row flex items-center px-8 py-4">
+                        <div class="w-24 text-center flex-shrink-0">${rankDisplay}</div>
+                        <div class="w-1/3 flex-shrink-0">
+                            <div class="flex items-center space-x-6">
+                                <img src="${skinUrl}" alt="${player.username}" 
+                                     onerror="this.src='https://vzge.me/bust/512/M3ob1n_'"
+                                     class="w-16 h-16 sm:w-20 sm:h-20 object-contain flex-shrink-0 drop-shadow-sm">
+                                <span class="font-extrabold text-white text-lg group-hover:text-pink-400 transition-colors">${player.username}</span>
+                            </div>
+                        </div>
+                        <div class="w-44 text-left flex-shrink-0">
+                            <span class="font-black text-xl text-pink-400 tracking-wide">${player.points}</span>
+                        </div>
+                        <div class="flex-1 overflow-x-auto no-scrollbar py-1">
+                            <div class="flex items-center space-x-4">
+                                ${badgesHtml}
+                            </div>
+                        </div>
+                        <div class="w-24 text-center flex-shrink-0">
+                            <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="editPlayer('${player.username}')" class="text-slate-400 hover:text-pink-400 p-1.5 transition-colors text-base" title="Chỉnh sửa">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deletePlayer('${player.username}')" class="text-slate-400 hover:text-rose-400 p-1.5 transition-colors text-base ml-1.5" title="Xóa">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTierlistMaker() {
+            const board = document.getElementById('tierlistBoard');
+            const pool = document.getElementById('unassignedPool');
+
+            const currentMode = activeTab === 'overall' ? 'sword' : activeTab;
+
+            board.innerHTML = TIER_RANKS.map(rank => {
+                let headerColor = 'bg-slate-800/80 text-pink-300 border-slate-700';
+                if (rank.endsWith('1')) headerColor = 'bg-yellow-950/40 text-yellow-300 border-yellow-800/50';
+                else if (rank.endsWith('3')) headerColor = 'bg-amber-950/40 text-amber-300 border-amber-800/50';
+                else if (rank.endsWith('4')) headerColor = 'bg-green-950/40 text-green-300 border-green-800/50';
+                else if (rank.endsWith('5')) headerColor = 'bg-slate-800/60 text-slate-300 border-slate-700';
+
+                return `
+                    <div class="tier-row flex rounded-xl border border-slate-800 overflow-hidden min-h-[85px] bg-slate-900/60 transition-colors"
+                         ondragover="allowDrop(event)" ondragleave="clearDragHover(event)" ondrop="handleDrop(event, '${rank}')">
+                        <div class="w-32 sm:w-36 flex-shrink-0 flex items-center justify-center font-black text-base border-r border-slate-800 ${headerColor}">
+                            ${rank}
+                        </div>
+                        <div class="flex-1 p-3.5 flex flex-wrap gap-3 items-center" id="tier_container_${rank}">
+                            ${renderTierPlayerCards(currentMode, rank)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const unassigned = players.filter(p => !p.tiers || !p.tiers[currentMode]);
+            pool.innerHTML = unassigned.map(p => createDragCardHtml(p)).join('');
+        }
+
+        function renderTierPlayerCards(mode, rank) {
+            const assigned = players.filter(p => p.tiers && p.tiers[mode] === rank);
+            return assigned.map(p => createDragCardHtml(p)).join('');
+        }
+
+        function createDragCardHtml(player) {
+            const skinUrl = `https://vzge.me/bust/128/${player.username}`;
+            return `
+                <div draggable="true" ondragstart="handleDragStart(event, '${player.username}')" 
+                     class="drag-item bg-slate-800 border border-slate-700 hover:border-pink-400 p-2 rounded-xl flex items-center space-x-2.5 cursor-grab active:cursor-grabbing shadow-sm transition-all hover:scale-105">
+                    <img src="${skinUrl}" class="w-8 h-8 object-contain">
+                    <span class="text-sm font-bold text-slate-200 pr-1.5">${player.username}</span>
+                </div>
+            `;
+        }
+
+        let draggedUsername = null;
+        function handleDragStart(e, username) {
+            draggedUsername = username;
+            e.dataTransfer.setData('text/plain', username);
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function clearDragHover(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e, targetRank) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+
+            if (!draggedUsername) return;
+
+            const mode = activeTab === 'overall' ? 'sword' : activeTab;
+            const playerIndex = players.findIndex(p => p.username === draggedUsername);
+            
+            if (playerIndex !== -1) {
+                if (!players[playerIndex].tiers) players[playerIndex].tiers = {};
+                players[playerIndex].tiers[mode] = targetRank;
+                players[playerIndex].points = calculatePlayerPoints(players[playerIndex].tiers);
+                saveAndRefresh();
+            }
+        }
+
+        function setupSearchListener() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                searchQuery = e.target.value.trim();
+                renderLeaderboard();
+            });
+        }
+
+        function setupModalTierInputs() {
+            const container = document.getElementById('tierInputs');
+            const gameModes = modes.filter(m => m.id !== 'overall');
+
+            container.innerHTML = gameModes.map(m => `
+                <div class="flex items-center justify-between bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
+                    <div class="flex items-center space-x-2">
+                        <img src="${m.icon}" class="w-5 h-5 object-contain" alt="${m.name}">
+                        <span class="text-xs font-bold text-slate-300">${m.name}</span>
+                    </div>
+                    <select id="tier_select_${m.id}" onchange="updateModalCalculatedPoints()" class="bg-slate-900 border border-slate-700 text-xs text-white rounded-lg px-2 py-1 focus:outline-none focus:border-pink-400 font-bold">
+                        <option value="">-- None --</option>
+                        <option value="HT1">HT1 (60đ)</option>
+                        <option value="HT2">HT2 (30đ)</option>
+                        <option value="HT3">HT3 (10đ)</option>
+                        <option value="HT4">HT4 (4đ)</option>
+                        <option value="HT5">HT5 (2đ)</option>
+                        <option value="LT1">LT1 (45đ)</option>
+                        <option value="LT2">LT2 (20đ)</option>
+                        <option value="LT3">LT3 (6đ)</option>
+                        <option value="LT4">LT4 (3đ)</option>
+                        <option value="LT5">LT5 (1đ)</option>
+                    </select>
+                </div>
+            `).join('');
+        }
+
+        function updateModalCalculatedPoints() {
+            let tempTiers = {};
+            modes.filter(m => m.id !== 'overall').forEach(m => {
+                const sel = document.getElementById(`tier_select_${m.id}`);
+                if (sel && sel.value) tempTiers[m.id] = sel.value;
+            });
+            document.getElementById('inputPoints').value = calculatePlayerPoints(tempTiers);
+        }
+
+        function openModal(editUser = null) {
+            const modal = document.getElementById('playerModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const editIndexInput = document.getElementById('editIndex');
+            const usernameInput = document.getElementById('inputUsername');
+
+            setupModalTierInputs();
+
+            if (editUser) {
+                const idx = players.findIndex(p => p.username === editUser);
+                if (idx !== -1) {
+                    const p = players[idx];
+                    modalTitle.innerText = `Sửa thông tin: ${p.username}`;
+                    editIndexInput.value = idx;
+                    usernameInput.value = p.username;
+
+                    modes.filter(m => m.id !== 'overall').forEach(m => {
+                        const sel = document.getElementById(`tier_select_${m.id}`);
+                        if (sel) sel.value = (p.tiers && p.tiers[m.id]) ? p.tiers[m.id] : '';
+                    });
+                }
+            }
+
+            updateModalCalculatedPoints();
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('playerModal').classList.add('hidden');
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const editIdx = parseInt(document.getElementById('editIndex').value);
+            const username = document.getElementById('inputUsername').value.trim();
+
+            const tiers = {};
+            modes.filter(m => m.id !== 'overall').forEach(m => {
+                const val = document.getElementById(`tier_select_${m.id}`).value;
+                tiers[m.id] = val || null;
+            });
+
+            const points = calculatePlayerPoints(tiers);
+
+            if (editIdx >= 0) {
+                players[editIdx] = { username, points, tiers };
+            }
+
+            saveAndRefresh();
+            closeModal();
+        }
+
+        function editPlayer(username) { openModal(username); }
+
+        function deletePlayer(username) {
+            if (confirm(`Bạn có chắc muốn xóa ${username}?`)) {
+                players = players.filter(p => p.username !== username);
+                saveAndRefresh();
+            }
+        }
+
+        function saveAndRefresh() {
+            localStorage.setItem('dennis_players', JSON.stringify(players));
+            if (currentView === 'leaderboard') renderLeaderboard();
+            else renderTierlistMaker();
+        }
+
+        function exportTierlistImage() {
+            const board = document.getElementById('tierlistBoard');
+            html2canvas(board, { backgroundColor: '#0f172a', scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `DENNIS_Tierlist_${activeTab.toUpperCase()}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
