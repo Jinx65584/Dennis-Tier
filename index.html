@@ -66,6 +66,28 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* THANH CUỘN NGANG CHO HUY HIỆU TIER */
+        .horizontal-scroll-container {
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #475569 #0f172a;
+        }
+        .horizontal-scroll-container::-webkit-scrollbar {
+            height: 5px;
+        }
+        .horizontal-scroll-container::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 9999px;
+        }
+        .horizontal-scroll-container::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 9999px;
+        }
+        .horizontal-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #f472b6;
+        }
+
         /* TIER COLORS */
         .tier-circle-tier1 { border: 2.5px solid rgba(250, 204, 21, 0.85); background-color: rgba(254, 243, 199, 0.08); }
         .tier-label-tier1 { background-color: rgba(161, 98, 7, 0.3); color: #fde047; }
@@ -107,7 +129,6 @@
             position: relative;
         }
 
-        /* --- MODE TABS STYLING & SLIDING ANIMATION --- */
         #modeTabsWrapper {
             overflow: visible !important;
             padding-top: 4px;
@@ -134,19 +155,9 @@
             border: none;
             border-top-left-radius: 0.75rem;
             border-top-right-radius: 0.75rem;
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             z-index: 10;
-        }
-
-        .mode-btn:first-child {
-            border-top-left-radius: 0.75rem;
-        }
-
-        .mode-btn:last-child {
-            border-top-right-radius: 0.75rem;
         }
 
         .mode-btn:hover {
@@ -546,7 +557,7 @@
                         const tierVal = player.tiers ? player.tiers[mode.id] : null;
                         if (!tierVal) {
                             return `
-                                <div class="flex flex-col items-center gap-1.5 min-w-[48px] opacity-40">
+                                <div class="flex flex-col items-center gap-1.5 flex-shrink-0 min-w-[48px] opacity-40">
                                     <div class="w-10 h-10 rounded-full tier-circle-empty flex items-center justify-center">
                                         <img src="${mode.icon}" class="w-5 h-5 object-contain opacity-50" alt="${mode.name}">
                                     </div>
@@ -556,7 +567,7 @@
                         }
                         const tClass = getTierClass(tierVal);
                         return `
-                            <div class="flex flex-col items-center gap-1.5 min-w-[48px] group relative">
+                            <div class="flex flex-col items-center gap-1.5 flex-shrink-0 min-w-[48px] group relative">
                                 <div class="w-10 h-10 rounded-full ${tClass.circle} flex items-center justify-center shadow-sm">
                                     <img src="${mode.icon}" class="w-5 h-5 object-contain" alt="${mode.name}">
                                 </div>
@@ -577,9 +588,12 @@
                             <div class="w-36 sm:w-40 text-left flex-shrink-0">
                                 <span class="font-black text-xl text-pink-400 tracking-wide">${player.points}</span>
                             </div>
-                            <div class="flex-1 overflow-x-auto no-scrollbar py-1">
-                                <div class="flex items-center space-x-3">${badgesHtml}</div>
+                            
+                            <!-- THANH NGANG CUỘN QUA LẠI CHO HUY HIỆU TIER -->
+                            <div class="flex-1 horizontal-scroll-container py-1">
+                                <div class="flex items-center space-x-3 w-max">${badgesHtml}</div>
                             </div>
+
                             <div class="w-16 text-center flex-shrink-0">
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button onclick="event.stopPropagation(); deletePlayer('${player.username}')" class="text-slate-400 hover:text-rose-400 p-1.5 transition-colors text-sm ml-1" title="Xóa player"><i class="fa-solid fa-trash"></i></button>
@@ -590,7 +604,6 @@
                 }).join('');
 
             } else {
-                // CHẾ ĐỘ RIÊNG: HIỂN THỊ CÁC CỘT TIER 1 - 5 TO HƠN VÀ LUÔN CĂN TỪ ĐẦU BẢNG (JUSTIFY-START)
                 overallContent.classList.add('hidden');
                 modeColumnsContent.classList.remove('hidden');
                 emptyState.classList.add('hidden');
@@ -738,6 +751,10 @@
 
         function allowDrop(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
         function clearDragHover(e) { e.currentTarget.classList.remove('drag-over'); }
+
+        function handleDrop(e, targetRect, targetRank) {
+            // handled drop
+        }
 
         function handleDrop(e, targetRank) {
             e.preventDefault();
