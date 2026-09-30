@@ -28,7 +28,9 @@
                         pinkLight: '#fbcfe8',
                         darkBg: '#0f172a',
                         cardDark: '#1e293b',
-                        borderDark: '#334155'
+                        borderDark: '#334155',
+                        discordBlurple: '#5865F2',
+                        discordHover: '#4752C4'
                     }
                 }
             }
@@ -41,14 +43,14 @@
             color: #f8fafc;
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(244, 114, 182, 0.08) 0%, rgba(15, 23, 42, 1) 70%),
+                radial-gradient(circle at 50% 0%, rgba(244, 114, 182, 0.05) 0%, rgba(15, 23, 42, 1) 60%),
                 radial-gradient(circle at 90% 80%, rgba(51, 65, 85, 0.4) 0%, transparent 40%);
             background-attachment: fixed;
         }
 
-        /* TÙY CHỈNH THANH CUỘN TRANG GỐC */
         ::-webkit-scrollbar {
             width: 8px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
             background: #0f172a;
@@ -64,249 +66,229 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Cấp độ 1: Vàng sáng mặc định */
-        .tier-circle-tier1 {
-            border: 4px solid #eab308;
-            background-color: rgba(254, 252, 232, 0.1);
-        }
-        .tier-label-tier1 {
-            background-color: rgba(234, 179, 8, 0.2);
-            color: #fde047;
-        }
+        /* TIER COLORS */
+        .tier-circle-tier1 { border: 2.5px solid rgba(250, 204, 21, 0.85); background-color: rgba(254, 243, 199, 0.08); }
+        .tier-label-tier1 { background-color: rgba(161, 98, 7, 0.3); color: #fde047; }
 
-        /* Cấp độ 2: Xám xanh */
-        .tier-circle-tier2 {
-            border: 4px solid rgba(148, 163, 184, 0.6);
-            background-color: rgba(241, 245, 249, 0.1);
-        }
-        .tier-label-tier2 {
-            background-color: rgba(100, 116, 139, 0.3);
-            color: #cbd5e1;
-        }
+        .tier-circle-tier2 { border: 2.5px solid rgba(148, 163, 184, 0.45); background-color: rgba(241, 245, 249, 0.08); }
+        .tier-label-tier2 { background-color: rgba(100, 116, 139, 0.3); color: #cbd5e1; }
 
-        /* Cấp độ 3: Nâu cam */
-        .tier-circle-tier3 {
-            border: 4px solid rgba(217, 119, 6, 0.6);
-            background-color: rgba(254, 243, 199, 0.1);
-        }
-        .tier-label-tier3 {
-            background-color: rgba(194, 95, 23, 0.3);
-            color: #fdba74;
-        }
+        .tier-circle-tier3 { border: 2.5px solid rgba(212, 143, 84, 0.85); background-color: rgba(245, 222, 179, 0.08); }
+        .tier-label-tier3 { background-color: rgba(146, 84, 39, 0.35); color: #f7b281; }
 
-        /* Cấp độ 4: Xanh lá */
-        .tier-circle-tier4 {
-            border: 4px solid rgba(74, 222, 128, 0.6);
-            background-color: rgba(240, 253, 244, 0.1);
-        }
-        .tier-label-tier4 {
-            background-color: rgba(22, 101, 52, 0.3);
-            color: #86efac;
-        }
+        .tier-circle-tier4 { border: 2.5px solid #4ade80; background-color: rgba(240, 253, 244, 0.08); }
+        .tier-label-tier4 { background-color: rgba(22, 101, 52, 0.3); color: #86efac; }
 
-        /* Cấp độ 5: Xám */
-        .tier-circle-tier5 {
-            border: 4px solid rgba(209, 213, 219, 0.6);
-            background-color: rgba(249, 250, 251, 0.1);
-        }
-        .tier-label-tier5 {
-            background-color: rgba(107, 114, 128, 0.3);
-            color: #d1d5db;
-        }
+        .tier-circle-tier5 { border: 2.5px solid rgba(209, 213, 219, 0.45); background-color: rgba(249, 250, 251, 0.08); }
+        .tier-label-tier5 { background-color: rgba(107, 114, 128, 0.3); color: #d1d5db; }
 
-        .tier-circle-empty {
-            border: 4px dashed rgba(100, 116, 139, 0.4);
-            background-color: transparent;
-            opacity: 0.5;
-        }
-        .tier-label-empty {
-            background-color: rgba(30, 41, 59, 0.6);
-            color: #64748b;
-            opacity: 0.7;
-        }
+        .tier-circle-empty { border: 2.5px dashed rgba(100, 116, 139, 0.3); background-color: transparent; opacity: 0.5; }
+        .tier-label-empty { background-color: rgba(30, 41, 59, 0.6); color: #64748b; opacity: 0.7; }
 
-        .drag-item.dragging { opacity: 0.4; scale: 0.95; }
-        .tier-row.drag-over { background-color: rgba(244, 114, 182, 0.15); }
-
-        /* ĐỊNH DẠNG MỖI DÒNG PLAYER THÀNH MỘT KHUNG CARD RIÊNG BIỆT CÓ ĐƯỜNG VIỀN BO TRÒN */
+        /* HIỆU ỨNG HOVER HÀNG NGƯỜI CHƠI */
         .player-row {
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-origin: center;
-            border: 1px solid #334155;
-            background-color: rgba(30, 41, 59, 0.5);
-            border-radius: 1rem;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                        background-color 0.25s ease, 
+                        box-shadow 0.25s ease;
+            border: none;
+            background-color: rgba(30, 41, 59, 0.4);
+            border-radius: 0.85rem;
             margin-bottom: 12px;
+            cursor: pointer;
+            -webkit-font-smoothing: antialiased;
+            backface-visibility: hidden;
+            transform: translateZ(0);
         }
         .player-row:hover {
-            transform: scale(1.01);
-            background-color: #1e293b !important;
-            border-color: #f472b6;
-            box-shadow: 0 10px 25px -5px rgba(244, 114, 182, 0.15), 0 8px 10px -6px rgba(244, 114, 182, 0.1);
+            background-color: #26354a !important;
+            transform: scale(1.02) translateZ(0);
+            box-shadow: 0 0 28px rgba(244, 114, 182, 0.4), inset 0 0 14px rgba(244, 114, 182, 0.1);
             z-index: 20;
             position: relative;
         }
 
-        /* Moon Halo Effect - Đã chỉnh cho icon nhỏ hơn và xích xuống dưới */
-        .mode-icon-wrapper {
+        /* --- MODE TABS STYLING & SLIDING ANIMATION --- */
+        #modeTabsWrapper {
+            overflow: visible !important;
+            padding-top: 4px;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            border-radius: 9999px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-top: 8px; /* Xích xuống một tí */
+            gap: 2px;
         }
 
-        .mode-btn:hover .mode-icon-wrapper::before,
-        .mode-btn.active .mode-icon-wrapper::before {
-            content: '';
+        #activeIndicator {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 56px;
-            height: 56px;
-            border-radius: 9999px;
-            border: 1px solid rgba(244, 114, 182, 0.4);
-            background: radial-gradient(circle, rgba(244, 114, 182, 0.25) 0%, rgba(30, 41, 59, 0.35) 50%, transparent 80%);
-            box-shadow: 0 0 14px rgba(244, 114, 182, 0.25);
+            bottom: 0px;
+            left: 0;
+            height: 3px;
+            background-color: #f472b6;
+            box-shadow: 0 0 8px #f472b6;
+            border-radius: 2px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 35;
             pointer-events: none;
-            animation: haloPulse 3s infinite ease-in-out;
+            will-change: transform, width;
         }
 
-        @keyframes haloPulse {
-            0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.8; }
-            50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.8; }
+        .mode-btn {
+            background-color: #162032;
+            border: none;
+            border-top-left-radius: 0.75rem;
+            border-top-right-radius: 0.75rem;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 10;
         }
 
-        .mode-btn:hover img,
-        .mode-btn.active img {
-            filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.8));
-            transform: scale(1.12);
+        .mode-btn:first-child {
+            border-top-left-radius: 0.75rem;
         }
 
-        .mode-btn:hover span,
-        .mode-btn.active span {
+        .mode-btn:last-child {
+            border-top-right-radius: 0.75rem;
+        }
+
+        .mode-btn:hover {
+            background-color: #1e293b;
+            z-index: 40;
+        }
+
+        .mode-btn:hover img {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.7));
+            transition: transform 0.2s ease;
+        }
+
+        .mode-btn:hover span {
             color: #f472b6;
-            text-shadow: 0 0 10px rgba(244, 114, 182, 0.4);
-            transform: scale(1.05);
+        }
+
+        .mode-btn.active {
+            background-color: #1e293b;
+            border: none;
+            z-index: 30;
+            box-shadow: none;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-pink-500 selection:text-white">
 
-    <!-- Ambient background glow -->
-    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[450px] bg-pink-500/10 blur-[160px] pointer-events-none rounded-full z-0"></div>
-
     <!-- Navigation Bar -->
     <nav class="w-full border-b border-slate-800 bg-[#0f172a]/85 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-        <div class="max-w-[1500px] mx-auto px-6 sm:px-10 lg:px-12">
-            <div class="flex items-center justify-between h-20">
-                <div class="flex items-center space-x-12">
-                    <a href="#" class="flex items-center space-x-3.5 group">
-                        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-pink-400 via-pink-500 to-rose-500 flex items-center justify-center font-black text-2xl text-white shadow-md shadow-pink-500/20 group-hover:scale-105 transition-transform duration-200">
+        <div class="max-w-[1180px] mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <a href="#" class="flex items-center space-x-3 group">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 via-pink-500 to-rose-500 flex items-center justify-center font-black text-xl text-white shadow-md shadow-pink-500/20 group-hover:scale-105 transition-transform duration-200">
                             D
                         </div>
                         <div>
-                            <span class="font-black text-xl tracking-wider bg-gradient-to-r from-white via-pink-300 to-rose-400 bg-clip-text text-transparent">DENNIS TIER</span>
-                            <span class="block text-xs tracking-widest text-pink-400 font-bold uppercase">PvP Leaderboard</span>
+                            <span class="font-black text-lg tracking-wider bg-gradient-to-r from-white via-pink-300 to-rose-400 bg-clip-text text-transparent">DENNIS TIER</span>
+                            <span class="block text-[10px] tracking-widest text-pink-400 font-bold uppercase">PvP Leaderboard</span>
                         </div>
                     </a>
                     
-                    <div class="hidden md:flex items-center space-x-10 text-base font-bold">
+                    <div class="hidden md:flex items-center space-x-8 text-sm font-bold">
                         <button onclick="switchMainView('leaderboard')" id="navBtnLeaderboard" class="text-pink-400 font-extrabold flex items-center gap-2 border-b-2 border-pink-400 pb-1 transition-all duration-300">
-                            <i class="fa-solid fa-list-ol text-sm text-pink-400"></i> Bảng Xếp Hạng
+                            <i class="fa-solid fa-list-ol text-xs text-pink-400"></i> Bảng Xếp Hạng
                         </button>
                         <a href="https://discord.gg" target="_blank" class="text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1">
-                            <i class="fa-brands fa-discord text-lg"></i> Discord
+                            <i class="fa-brands fa-discord text-base"></i> Discord
                         </a>
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-5">
-                    <div class="relative w-56 sm:w-72">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <div class="flex items-center space-x-4">
+                    <div class="relative w-40 sm:w-52">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                         <input id="searchInput" type="text" placeholder="Tìm người chơi..." 
-                            class="w-full bg-slate-900/80 text-sm text-white pl-11 pr-4 py-2.5 rounded-xl border border-slate-700 focus:outline-none focus:border-pink-400 shadow-inner transition-all placeholder:text-slate-500">
+                            class="w-full bg-slate-900/80 text-xs text-white pl-10 pr-3.5 py-2 rounded-xl border border-slate-700 focus:outline-none focus:border-pink-400 shadow-inner transition-all placeholder:text-slate-500">
                     </div>
+
+                    <a href="#" onclick="loginWithDiscord(event)" class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 transition-all shadow-md shadow-discordBlurple/20 flex-shrink-0">
+                        <i class="fa-brands fa-discord text-sm"></i>
+                        <span class="hidden sm:inline">Đăng nhập với Discord</span>
+                        <span class="sm:hidden">Discord</span>
+                    </a>
                 </div>
             </div>
         </div>
     </nav>
 
     <!-- Main Content Container -->
-    <main class="flex-1 max-w-[1500px] w-full mx-auto px-6 sm:px-10 lg:px-12 py-8 relative z-10">
+    <main class="flex-1 max-w-[1180px] w-full mx-auto px-4 sm:px-6 py-6 relative z-10">
         
-        <!-- Header Banner Title -->
-        <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div class="mb-14 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-                <div class="flex items-center gap-2 text-pink-400 font-bold text-sm tracking-widest uppercase mb-1.5">
-                    <span class="w-2.5 h-2.5 rounded-full bg-pink-400 animate-ping"></span>
+                <div class="flex items-center gap-2 text-pink-400 font-bold text-xs tracking-widest uppercase mb-1">
+                    <span class="w-2 h-2 rounded-full bg-pink-400 animate-ping"></span>
                     Hệ thống xếp hạng PvP mùa giải
                 </div>
-                <h1 id="viewTitle" class="text-3xl sm:text-4xl font-black text-white tracking-tight">Bảng Xếp Hạng</h1>
-                <p id="viewSubtitle" class="text-slate-400 text-sm mt-1.5">Khám phá thứ hạng và điểm số của các chiến binh hàng đầu trong từng chế độ.</p>
+                <h1 id="viewTitle" class="text-2xl sm:text-3xl font-black text-white tracking-tight">Bảng Xếp Hạng</h1>
+                <p id="viewSubtitle" class="text-slate-400 text-xs mt-1">Khám phá thứ hạng và điểm số của các chiến binh hàng đầu trong từng chế độ.</p>
             </div>
         </div>
 
-        <!-- Mode Tabs -->
-        <div class="mb-6 overflow-x-auto no-scrollbar relative">
-            <div id="modeTabsWrapper" class="flex justify-between items-center px-6 w-full min-w-[900px] py-4 relative">
-                <!-- Tabs injected by JS -->
-            </div>
-        </div>
-
-        <!-- VIEW 1: Leaderboard Container -->
-        <div id="leaderboardView" class="space-y-3">
-            <div class="flex items-center text-sm font-extrabold text-slate-400 tracking-wider uppercase px-8 py-3 bg-slate-800/30 rounded-xl mb-4 border border-slate-800">
-                <div class="w-24 text-center flex-shrink-0">#</div>
-                <div class="w-1/3 flex-shrink-0">PLAYER</div>
-                <div class="w-44 text-left flex-shrink-0">POINTS</div>
-                <div class="flex-1">TIERS</div>
-                <div class="w-24 text-center flex-shrink-0"></div>
+        <!-- Mode Tabs & Khung Bảng Giao Diện -->
+        <div class="w-full">
+            <!-- Tabs Bar -->
+            <div class="w-full overflow-x-auto overflow-y-visible no-scrollbar">
+                <div id="modeTabsWrapper" class="flex items-center w-full min-w-[850px] relative">
+                    <div id="activeIndicator"></div>
+                </div>
             </div>
 
-            <div id="leaderboardBody" class="flex flex-col text-base font-semibold">
-                <!-- Rows rendered via JavaScript -->
+            <!-- VIEW 1: Leaderboard Container -->
+            <div id="leaderboardView" class="bg-[#1e293b] rounded-b-xl rounded-tr-none rounded-tl-none p-4 sm:p-5 shadow-xl relative z-10">
+
+                <div class="flex items-center text-sm font-black text-slate-300 tracking-wider uppercase px-4 py-3 bg-[#162032]/70 rounded-lg mb-3">
+                    <div class="w-12 text-center flex-shrink-0">#</div>
+                    <div class="w-[38%] sm:w-[32%] flex-shrink-0">PLAYER</div>
+                    <div class="w-36 sm:w-40 text-left flex-shrink-0">POINTS</div>
+                    <div class="flex-1">TIERS</div>
+                    <div class="w-16 text-center flex-shrink-0"></div>
+                </div>
+
+                <div id="leaderboardBody" class="flex flex-col text-sm font-semibold">
+                    <!-- Rows rendered via JavaScript -->
+                </div>
+
+                <div id="emptyState" class="hidden py-16 text-center">
+                    <i class="fa-solid fa-ghost text-4xl text-slate-600 mb-3 block"></i>
+                    <p class="text-slate-300 font-bold text-sm">Không tìm thấy người chơi nào</p>
+                    <p class="text-slate-500 text-xs mt-1">Hãy thử tìm kiếm tên khác.</p>
+                </div>
             </div>
 
-            <div id="emptyState" class="hidden py-20 text-center">
-                <i class="fa-solid fa-ghost text-5xl text-slate-600 mb-3 block"></i>
-                <p class="text-slate-300 font-bold text-base">Không tìm thấy người chơi nào</p>
-                <p class="text-slate-500 text-sm mt-1">Hãy thử tìm kiếm tên khác.</p>
-            </div>
-        </div>
+            <!-- VIEW 2: Interactive Drag & Drop Tier List Maker -->
+            <div id="tierlistView" class="hidden space-y-4 pt-3">
+                <div class="flex items-center justify-between bg-slate-900/80 p-4 rounded-xl shadow-sm">
+                    <span class="text-xs font-semibold text-slate-300">Kéo thả avatar nhân vật vào các bậc Tier tương ứng</span>
+                    <button onclick="exportTierlistImage()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors shadow-md shadow-emerald-600/20">
+                        <i class="fa-solid fa-download"></i> Xuất Ảnh
+                    </button>
+                </div>
 
-        <!-- VIEW 2: Interactive Drag & Drop Tier List Maker -->
-        <div id="tierlistView" class="hidden space-y-6">
-            <div class="flex items-center justify-between bg-slate-900/80 p-5 rounded-2xl border border-slate-800 shadow-sm">
-                <span class="text-sm font-semibold text-slate-300">Chế độ Drag & Drop: Kéo thả avatar nhân vật vào các bậc Tier tương ứng</span>
-                <button onclick="exportTierlistImage()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-extrabold px-5 py-2.5 rounded-xl flex items-center gap-2 transition-colors shadow-md shadow-emerald-600/20">
-                    <i class="fa-solid fa-download"></i> Xuất Ảnh
-                </button>
-            </div>
+                <div id="tierlistBoard" class="space-y-3 bg-slate-900/80 p-5 rounded-xl shadow-sm backdrop-blur-md">
+                    <!-- Tier rows generated dynamically -->
+                </div>
 
-            <div id="tierlistBoard" class="space-y-3.5 bg-slate-900/80 p-6 rounded-2xl border border-slate-800 shadow-sm backdrop-blur-md">
-                <!-- Tier rows generated dynamically -->
-            </div>
-
-            <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-sm">
-                <h3 class="text-sm font-extrabold text-pink-400 uppercase tracking-wider mb-4">Kho Người Chơi Chưa Phân Tier</h3>
-                <div id="unassignedPool" class="flex flex-wrap gap-3.5 min-h-[80px] p-5 bg-slate-800/40 rounded-xl border border-slate-800">
-                    <!-- Cards rendered dynamically -->
+                <div class="bg-slate-900/80 p-5 rounded-xl shadow-sm">
+                    <h3 class="text-xs font-extrabold text-pink-400 uppercase tracking-wider mb-3">Kho Người Chơi Chưa Phân Tier</h3>
+                    <div id="unassignedPool" class="flex flex-wrap gap-3 min-h-[70px] p-4 bg-slate-800/40 rounded-lg">
+                        <!-- Cards rendered dynamically -->
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="mt-auto border-t border-slate-800 bg-[#0f172a]/80 py-8 text-center text-sm text-slate-500 relative z-10">
-        <div class="max-w-[1500px] mx-auto px-6 sm:px-10 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <footer class="mt-auto border-t border-slate-800 bg-[#0f172a]/80 py-6 text-center text-xs text-slate-500 relative z-10">
+        <div class="max-w-[1180px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p>© 2026 DENNIS TIER - Minecraft PvP Ranking System. All rights reserved.</p>
-            <div class="flex items-center space-x-6 font-semibold">
+            <div class="flex items-center space-x-5 font-semibold">
                 <a href="#" class="hover:text-pink-400 transition-colors">Điều khoản</a>
                 <a href="#" class="hover:text-pink-400 transition-colors">Bảo mật</a>
                 <a href="https://discord.gg" target="_blank" class="hover:text-pink-400 transition-colors">Discord Community</a>
@@ -314,56 +296,53 @@
         </div>
     </footer>
 
-    <!-- MODAL: Edit Player Modal -->
-    <div id="playerModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl p-6 relative">
-            <button onclick="closeModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
-            <h2 id="modalTitle" class="text-xl font-bold text-white mb-4">Chỉnh Sửa Player</h2>
+    <!-- PLAYER PROFILE MODAL (Đã phóng to rộng hơn và thiết kế lại khung Tiers hình vuông đều đặn) -->
+    <div id="playerModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-[#162032] w-full max-w-[560px] rounded-2xl shadow-2xl p-8 relative flex flex-col items-center text-center">
             
-            <form id="playerForm" onsubmit="handleFormSubmit(event)" class="space-y-5">
-                <input type="hidden" id="editIndex" value="-1">
-                
-                <div>
-                    <label class="block text-sm font-bold text-pink-400 mb-1.5">Tên Minecraft Username</label>
-                    <input type="text" id="inputUsername" readonly 
-                        class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none cursor-not-allowed">
-                </div>
+            <!-- Nút Đóng -->
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
 
-                <div>
-                    <label class="block text-sm font-bold text-pink-400 mb-1.5">Tổng Điểm (Points)</label>
-                    <input type="number" id="inputPoints" readonly 
-                        class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-400 focus:outline-none cursor-not-allowed font-bold">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-pink-400 mb-2">Cấu hình Tier cho từng Mode</label>
-                    <div id="tierInputs" class="grid grid-cols-2 gap-3 max-h-52 overflow-y-auto pr-1">
-                        <!-- Tier selectors injected dynamically -->
+            <!-- Avatar & Khung hiệu ứng vòng lửa -->
+            <div class="relative mt-2 mb-4">
+                <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-rose-500 p-1 flex items-center justify-center shadow-lg shadow-pink-500/20">
+                    <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center overflow-hidden">
+                        <img id="modalSkinImg" src="" alt="Skin" class="w-24 h-24 object-contain drop-shadow-md mt-2">
                     </div>
                 </div>
+            </div>
 
-                <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-800">
-                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 text-sm font-bold text-slate-400 hover:text-white">Hủy</button>
-                    <button type="submit" class="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-5 py-2.5 rounded-xl text-sm font-extrabold transition-all shadow-md shadow-pink-500/20">Lưu lại</button>
+            <!-- Tên Player & Icon Cúp -->
+            <div class="flex items-center justify-center gap-2 mb-5">
+                <span class="text-amber-400 text-lg"><i class="fa-solid fa-trophy"></i></span>
+                <h2 id="modalUsername" class="text-2xl font-black bg-gradient-to-r from-amber-200 via-pink-300 to-rose-400 bg-clip-text text-transparent">PhamQuocDat</h2>
+                <button onclick="copyProfileLink()" class="text-slate-400 hover:text-white text-xs ml-1" title="Sao chép liên kết"><i class="fa-regular fa-copy"></i></button>
+            </div>
+
+            <!-- Khung Thẻ Hạng Tổng (Overall Box) -->
+            <div class="w-full bg-[#1e293b] border border-slate-700/50 rounded-xl py-4 px-4 mb-5 shadow-inner">
+                <div id="modalRankNum" class="text-2xl font-black text-white mb-0.5">#1</div>
+                <div class="flex items-center justify-center gap-1.5 text-amber-400 text-xs font-black tracking-wider">
+                    <i class="fa-solid fa-trophy"></i> OVERALL <span id="modalPoints" class="text-slate-300 font-bold">(108 points)</span>
                 </div>
-            </form>
+            </div>
+
+            <!-- Phần Tiers các mode (Đã đổi thành dạng lưới hình vuông đều, không bị dài ngang) -->
+            <div class="w-full text-left">
+                <h3 class="text-xs font-extrabold text-slate-400 tracking-widest uppercase mb-2 text-center">TIERS</h3>
+                <div id="modalTiersContainer" class="bg-[#111827]/70 border border-slate-800 rounded-xl p-4 grid grid-cols-4 sm:grid-cols-7 gap-2.5 justify-items-center">
+                    <!-- Render qua JS -->
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         const TIER_POINTS = {
-            'HT1': 60,
-            'LT1': 45,
-            'HT2': 30,
-            'LT2': 20,
-            'HT3': 10,
-            'LT3': 6,
-            'HT4': 4,
-            'LT4': 3,
-            'HT5': 2,
-            'LT5': 1
+            'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10,
+            'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1
         };
 
         function calculatePlayerPoints(tiersObj) {
@@ -371,9 +350,7 @@
             let total = 0;
             for (const modeId in tiersObj) {
                 const tierVal = tiersObj[modeId];
-                if (tierVal && TIER_POINTS[tierVal]) {
-                    total += TIER_POINTS[tierVal];
-                }
+                if (tierVal && TIER_POINTS[tierVal]) total += TIER_POINTS[tierVal];
             }
             return total;
         }
@@ -390,51 +367,35 @@
         ];
 
         const defaultPlayers = [
-            {
-                username: 'PhamQuocDat',
-                tiers: { sword: 'HT1', nethot: 'HT3', smp: 'LT4', uhc: 'LT2', axe: 'LT2', vanilla: 'LT2', mace: 'LT3' }
-            },
-            {
-                username: 'Dennis_25',
-                tiers: { sword: 'HT1', uhc: 'LT1' }
-            },
-            {
-                username: 'thekidpika',
-                tiers: { sword: 'HT2', nethot: 'LT3', axe: 'HT3', vanilla: 'HT3' }
-            },
-            {
-                username: 'Ghost_kevinn',
-                tiers: { sword: 'LT2', nethot: 'LT3', smp: 'LT3', uhc: 'LT3', axe: 'HT3', vanilla: 'HT4', mace: 'HT4' }
-            },
-            {
-                username: 'NguyenVanVy',
-                tiers: { sword: 'LT3', nethot: 'LT3', smp: 'LT3', uhc: 'LT3', axe: 'HT3', vanilla: 'LT3' }
-            },
-            {
-                username: 'TrungTrungRuoiBu',
-                tiers: { sword: 'LT3', nethot: 'LT3', smp: 'HT3', uhc: 'LT3', axe: 'LT3', vanilla: 'LT3' }
-            }
+            { username: 'PhamQuocDat', tiers: { sword: 'HT1', nethot: 'HT3', smp: 'LT4', uhc: 'LT2', axe: 'LT2', vanilla: 'LT2' } },
+            { username: 'Dennis_25', tiers: { sword: 'HT1', smp: 'LT1' } },
+            { username: 'thekidpika', tiers: { sword: 'HT2', nethot: 'LT3', uhc: 'LT3', axe: 'LT3' } },
+            { username: 'Ghost_kevinn', tiers: { sword: 'LT2', nethot: 'LT3', smp: 'LT3', uhc: 'LT3', axe: 'HT3', vanilla: 'LT4' } },
+            { username: 'M3ob1n_', tiers: { nethot: 'LT2', smp: 'LT2', vanilla: 'LT3' } }
         ];
 
         let modes = JSON.parse(localStorage.getItem('dennis_modes')) || defaultModes;
         let players = JSON.parse(localStorage.getItem('dennis_players')) || defaultPlayers;
-
-        players.forEach(p => {
-            p.points = calculatePlayerPoints(p.tiers);
-        });
+        players.forEach(p => { p.points = calculatePlayerPoints(p.tiers); });
 
         let activeTab = 'overall';
         let searchQuery = '';
         let currentView = 'leaderboard';
-
         const TIER_RANKS = ['HT1', 'HT2', 'HT3', 'HT4', 'HT5', 'LT1', 'LT2', 'LT3', 'LT4', 'LT5'];
 
         window.addEventListener('DOMContentLoaded', () => {
             renderTabs();
             renderLeaderboard();
             setupSearchListener();
-            setupModalTierInputs();
+            setTimeout(updateIndicatorPosition, 50);
         });
+
+        window.addEventListener('resize', () => updateIndicatorPosition());
+
+        function loginWithDiscord(e) {
+            e.preventDefault();
+            alert("Tính năng Đăng nhập với Discord đang được kết nối!");
+        }
 
         function switchMainView(view) {
             currentView = view;
@@ -463,32 +424,64 @@
 
         function renderTabs() {
             const wrapper = document.getElementById('modeTabsWrapper');
+            const indicator = document.getElementById('activeIndicator');
             wrapper.innerHTML = '';
+            wrapper.appendChild(indicator);
 
-            modes.forEach(mode => {
+            modes.forEach((mode, index) => {
                 const isActive = activeTab === mode.id;
                 const activeClass = isActive ? 'active' : '';
 
                 const btn = document.createElement('button');
+                btn.id = `tab_btn_${mode.id}`;
                 btn.onclick = () => switchTab(mode.id);
                 
-                btn.className = `mode-btn relative flex-1 flex flex-col items-center justify-center gap-1.5 py-2 transition-all duration-300 group ${activeClass}`;
+                let radiusClass = 'rounded-t-xl';
+                if (index === 0) radiusClass = 'rounded-tl-xl rounded-tr-xl';
+                else if (index === modes.length - 1) radiusClass = 'rounded-tr-xl rounded-tl-xl';
+
+                btn.className = `mode-btn flex-1 flex flex-col items-center justify-center gap-1 px-3 py-2.5 ${radiusClass} group ${activeClass}`;
                 
                 btn.innerHTML = `
-                    <div class="mode-icon-wrapper">
-                        <img src="${mode.icon}" class="w-7 h-7 object-contain drop-shadow-sm transition-transform duration-300" alt="${mode.name}" onerror="this.src='https://api.iconify.design/twemoji:trophy.svg'">
+                    <div class="w-6 h-6 flex items-center justify-center">
+                        <img src="${mode.icon}" class="w-6 h-6 object-contain drop-shadow-sm transition-transform duration-300" alt="${mode.name}">
                     </div>
-                    <span class="text-sm tracking-wider font-extrabold text-slate-400 transition-all duration-300 inline-block mt-0.5">${mode.name}</span>
+                    <span class="text-[11px] tracking-wider font-extrabold text-slate-300 group-hover:text-pink-400 transition-colors inline-block">${mode.name}</span>
                 `;
                 wrapper.appendChild(btn);
             });
+            updateIndicatorPosition();
+        }
+
+        function updateIndicatorPosition() {
+            const activeBtn = document.getElementById(`tab_btn_${activeTab}`);
+            const indicator = document.getElementById('activeIndicator');
+            const wrapper = document.getElementById('modeTabsWrapper');
+
+            if (activeBtn && indicator && wrapper) {
+                const btnRect = activeBtn.getBoundingClientRect();
+                const wrapperRect = wrapper.getBoundingClientRect();
+                const leftPos = btnRect.left - wrapperRect.left + wrapper.scrollLeft;
+                const width = btnRect.width;
+
+                indicator.style.width = `${width}px`;
+                indicator.style.transform = `translateX(${leftPos}px)`;
+            }
         }
 
         function switchTab(modeId) {
             if (activeTab === modeId) return;
             activeTab = modeId;
+            
+            modes.forEach(m => {
+                const b = document.getElementById(`tab_btn_${m.id}`);
+                if (b) {
+                    if (m.id === modeId) b.classList.add('active');
+                    else b.classList.remove('active');
+                }
+            });
 
-            renderTabs();
+            updateIndicatorPosition();
 
             if (currentView === 'leaderboard') {
                 renderLeaderboard();
@@ -540,61 +533,49 @@
                 if (rank === 2) rankDisplay = `<span class="text-rose-400 font-black text-2xl">2</span>`;
                 if (rank === 3) rankDisplay = `<span class="text-amber-400 font-black text-2xl">3</span>`;
 
-                const skinUrl = `https://vzge.me/bust/512/${player.username}`;
+                const skinUrl = `https://vzge.me/bust/220/${player.username}`;
 
                 const badgesHtml = modes.filter(m => m.id !== 'overall').map(mode => {
                     const tierVal = player.tiers ? player.tiers[mode.id] : null;
-                    
                     if (!tierVal) {
                         return `
-                            <div class="flex flex-col items-center gap-1.5 min-w-[52px]">
-                                <div class="w-12 h-12 rounded-full tier-circle-empty flex items-center justify-center">
-                                    <img src="${mode.icon}" class="w-6 h-6 object-contain opacity-50" alt="${mode.name}">
+                            <div class="flex flex-col items-center gap-1.5 min-w-[48px]">
+                                <div class="w-10 h-10 rounded-full tier-circle-empty flex items-center justify-center">
+                                    <img src="${mode.icon}" class="w-5 h-5 object-contain opacity-50" alt="${mode.name}">
                                 </div>
-                                <span class="tier-label-empty text-xs font-black px-2.5 py-0.5 rounded-md leading-none">-</span>
+                                <span class="tier-label-empty text-xs font-black px-2 py-0.5 rounded leading-none">-</span>
                             </div>
                         `;
                     }
-
                     const tClass = getTierClass(tierVal);
-
                     return `
-                        <div class="flex flex-col items-center gap-1.5 min-w-[52px] group relative">
-                            <div class="w-12 h-12 rounded-full ${tClass.circle} flex items-center justify-center shadow-sm hover:scale-105 transition-transform">
-                                <img src="${mode.icon}" class="w-6 h-6 object-contain" alt="${mode.name}">
+                        <div class="flex flex-col items-center gap-1.5 min-w-[48px] group relative">
+                            <div class="w-10 h-10 rounded-full ${tClass.circle} flex items-center justify-center shadow-sm">
+                                <img src="${mode.icon}" class="w-5 h-5 object-contain" alt="${mode.name}">
                             </div>
-                            <span class="${tClass.label} text-sm font-black px-2.5 py-0.5 rounded-md leading-none tracking-tight shadow-sm">${tierVal}</span>
+                            <span class="${tClass.label} text-xs font-black px-2 py-0.5 rounded leading-none tracking-tight shadow-sm">${tierVal}</span>
                         </div>
                     `;
                 }).join('');
 
                 return `
-                    <div class="player-row flex items-center px-8 py-4">
-                        <div class="w-24 text-center flex-shrink-0">${rankDisplay}</div>
-                        <div class="w-1/3 flex-shrink-0">
-                            <div class="flex items-center space-x-6">
-                                <img src="${skinUrl}" alt="${player.username}" 
-                                     onerror="this.src='https://vzge.me/bust/512/M3ob1n_'"
-                                     class="w-16 h-16 sm:w-20 sm:h-20 object-contain flex-shrink-0 drop-shadow-sm">
-                                <span class="font-extrabold text-white text-lg group-hover:text-pink-400 transition-colors">${player.username}</span>
+                    <div class="player-row flex items-center px-4 py-3.5" onclick="openPlayerModal('${player.username}')">
+                        <div class="w-12 text-center flex-shrink-0">${rankDisplay}</div>
+                        <div class="w-[38%] sm:w-[32%] flex-shrink-0">
+                            <div class="flex items-center space-x-3.5">
+                                <img src="${skinUrl}" alt="${player.username}" onerror="this.src='https://vzge.me/bust/220/M3ob1n_'" class="w-20 h-20 object-contain flex-shrink-0 drop-shadow-lg -my-2">
+                                <span class="font-extrabold text-white text-base group-hover:text-pink-400 transition-colors truncate">${player.username}</span>
                             </div>
                         </div>
-                        <div class="w-44 text-left flex-shrink-0">
+                        <div class="w-36 sm:w-40 text-left flex-shrink-0">
                             <span class="font-black text-xl text-pink-400 tracking-wide">${player.points}</span>
                         </div>
                         <div class="flex-1 overflow-x-auto no-scrollbar py-1">
-                            <div class="flex items-center space-x-4">
-                                ${badgesHtml}
-                            </div>
+                            <div class="flex items-center space-x-3">${badgesHtml}</div>
                         </div>
-                        <div class="w-24 text-center flex-shrink-0">
+                        <div class="w-16 text-center flex-shrink-0">
                             <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onclick="editPlayer('${player.username}')" class="text-slate-400 hover:text-pink-400 p-1.5 transition-colors text-base" title="Chỉnh sửa">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </button>
-                                <button onclick="deletePlayer('${player.username}')" class="text-slate-400 hover:text-rose-400 p-1.5 transition-colors text-base ml-1.5" title="Xóa">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                                <button onclick="event.stopPropagation(); deletePlayer('${player.username}')" class="text-slate-400 hover:text-rose-400 p-1.5 transition-colors text-sm ml-1" title="Xóa player"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
                     </div>
@@ -602,26 +583,70 @@
             }).join('');
         }
 
+        function openPlayerModal(username) {
+            const player = players.find(p => p.username === username);
+            if (!player) return;
+
+            let sortedByPoints = [...players].sort((a, b) => b.points - a.points);
+            let rankIdx = sortedByPoints.findIndex(p => p.username === username) + 1;
+
+            document.getElementById('modalUsername').innerText = player.username;
+            document.getElementById('modalSkinImg').src = `https://vzge.me/bust/220/${player.username}`;
+            document.getElementById('modalRankNum').innerText = `#${rankIdx}`;
+            document.getElementById('modalPoints').innerText = `(${player.points} points)`;
+
+            const modalTiersContainer = document.getElementById('modalTiersContainer');
+            modalTiersContainer.innerHTML = modes.filter(m => m.id !== 'overall').map(mode => {
+                const tierVal = player.tiers ? player.tiers[mode.id] : null;
+                if (!tierVal) {
+                    return `
+                        <div class="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-900/40 border border-slate-800/80 aspect-square w-full">
+                            <div class="w-8 h-8 rounded-full tier-circle-empty flex items-center justify-center mb-1">
+                                <img src="${mode.icon}" class="w-4 h-4 object-contain opacity-50" alt="${mode.name}">
+                            </div>
+                            <span class="tier-label-empty text-[10px] font-black px-1.5 py-0.5 rounded leading-none">-</span>
+                        </div>
+                    `;
+                }
+                const tClass = getTierClass(tierVal);
+                return `
+                    <div class="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-900/40 border border-slate-800/80 aspect-square w-full">
+                        <div class="w-8 h-8 rounded-full ${tClass.circle} flex items-center justify-center shadow-sm mb-1">
+                            <img src="${mode.icon}" class="w-4 h-4 object-contain" alt="${mode.name}">
+                        </div>
+                        <span class="${tClass.label} text-[10px] font-black px-1.5 py-0.5 rounded leading-none tracking-tight shadow-sm">${tierVal}</span>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('playerModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('playerModal').classList.add('hidden');
+        }
+
+        function copyProfileLink() {
+            navigator.clipboard.writeText(window.location.href);
+            alert("Đã sao chép liên kết trang cá nhân!");
+        }
+
         function renderTierlistMaker() {
             const board = document.getElementById('tierlistBoard');
             const pool = document.getElementById('unassignedPool');
-
             const currentMode = activeTab === 'overall' ? 'sword' : activeTab;
 
             board.innerHTML = TIER_RANKS.map(rank => {
-                let headerColor = 'bg-slate-800/80 text-pink-300 border-slate-700';
-                if (rank.endsWith('1')) headerColor = 'bg-yellow-950/40 text-yellow-300 border-yellow-800/50';
-                else if (rank.endsWith('3')) headerColor = 'bg-amber-950/40 text-amber-300 border-amber-800/50';
-                else if (rank.endsWith('4')) headerColor = 'bg-green-950/40 text-green-300 border-green-800/50';
-                else if (rank.endsWith('5')) headerColor = 'bg-slate-800/60 text-slate-300 border-slate-700';
+                let headerColor = 'bg-slate-800/80 text-pink-300';
+                if (rank.endsWith('1') || rank.endsWith('3')) headerColor = 'bg-amber-950/40 text-amber-300';
+                else if (rank.endsWith('4')) headerColor = 'bg-green-950/40 text-green-300';
+                else if (rank.endsWith('5')) headerColor = 'bg-slate-800/60 text-slate-300';
 
                 return `
-                    <div class="tier-row flex rounded-xl border border-slate-800 overflow-hidden min-h-[85px] bg-slate-900/60 transition-colors"
+                    <div class="tier-row flex rounded-lg overflow-hidden min-h-[75px] bg-slate-900/60 transition-colors"
                          ondragover="allowDrop(event)" ondragleave="clearDragHover(event)" ondrop="handleDrop(event, '${rank}')">
-                        <div class="w-32 sm:w-36 flex-shrink-0 flex items-center justify-center font-black text-base border-r border-slate-800 ${headerColor}">
-                            ${rank}
-                        </div>
-                        <div class="flex-1 p-3.5 flex flex-wrap gap-3 items-center" id="tier_container_${rank}">
+                        <div class="w-28 flex-shrink-0 flex items-center justify-center font-black text-sm ${headerColor}">${rank}</div>
+                        <div class="flex-1 p-3 flex flex-wrap gap-2.5 items-center" id="tier_container_${rank}">
                             ${renderTierPlayerCards(currentMode, rank)}
                         </div>
                     </div>
@@ -638,12 +663,12 @@
         }
 
         function createDragCardHtml(player) {
-            const skinUrl = `https://vzge.me/bust/128/${player.username}`;
+            const skinUrl = `https://vzge.me/bust/96/${player.username}`;
             return `
                 <div draggable="true" ondragstart="handleDragStart(event, '${player.username}')" 
-                     class="drag-item bg-slate-800 border border-slate-700 hover:border-pink-400 p-2 rounded-xl flex items-center space-x-2.5 cursor-grab active:cursor-grabbing shadow-sm transition-all hover:scale-105">
+                     class="drag-item bg-slate-800 hover:border-pink-400 p-1.5 rounded-lg flex items-center space-x-2 cursor-grab active:cursor-grabbing shadow-sm transition-all hover:scale-105">
                     <img src="${skinUrl}" class="w-8 h-8 object-contain">
-                    <span class="text-sm font-bold text-slate-200 pr-1.5">${player.username}</span>
+                    <span class="text-xs font-bold text-slate-200 pr-1">${player.username}</span>
                 </div>
             `;
         }
@@ -654,19 +679,12 @@
             e.dataTransfer.setData('text/plain', username);
         }
 
-        function allowDrop(e) {
-            e.preventDefault();
-            e.currentTarget.classList.add('drag-over');
-        }
-
-        function clearDragHover(e) {
-            e.currentTarget.classList.remove('drag-over');
-        }
+        function allowDrop(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+        function clearDragHover(e) { e.currentTarget.classList.remove('drag-over'); }
 
         function handleDrop(e, targetRank) {
             e.preventDefault();
             e.currentTarget.classList.remove('drag-over');
-
             if (!draggedUsername) return;
 
             const mode = activeTab === 'overall' ? 'sword' : activeTab;
@@ -686,96 +704,6 @@
                 renderLeaderboard();
             });
         }
-
-        function setupModalTierInputs() {
-            const container = document.getElementById('tierInputs');
-            const gameModes = modes.filter(m => m.id !== 'overall');
-
-            container.innerHTML = gameModes.map(m => `
-                <div class="flex items-center justify-between bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
-                    <div class="flex items-center space-x-2">
-                        <img src="${m.icon}" class="w-5 h-5 object-contain" alt="${m.name}">
-                        <span class="text-xs font-bold text-slate-300">${m.name}</span>
-                    </div>
-                    <select id="tier_select_${m.id}" onchange="updateModalCalculatedPoints()" class="bg-slate-900 border border-slate-700 text-xs text-white rounded-lg px-2 py-1 focus:outline-none focus:border-pink-400 font-bold">
-                        <option value="">-- None --</option>
-                        <option value="HT1">HT1 (60đ)</option>
-                        <option value="HT2">HT2 (30đ)</option>
-                        <option value="HT3">HT3 (10đ)</option>
-                        <option value="HT4">HT4 (4đ)</option>
-                        <option value="HT5">HT5 (2đ)</option>
-                        <option value="LT1">LT1 (45đ)</option>
-                        <option value="LT2">LT2 (20đ)</option>
-                        <option value="LT3">LT3 (6đ)</option>
-                        <option value="LT4">LT4 (3đ)</option>
-                        <option value="LT5">LT5 (1đ)</option>
-                    </select>
-                </div>
-            `).join('');
-        }
-
-        function updateModalCalculatedPoints() {
-            let tempTiers = {};
-            modes.filter(m => m.id !== 'overall').forEach(m => {
-                const sel = document.getElementById(`tier_select_${m.id}`);
-                if (sel && sel.value) tempTiers[m.id] = sel.value;
-            });
-            document.getElementById('inputPoints').value = calculatePlayerPoints(tempTiers);
-        }
-
-        function openModal(editUser = null) {
-            const modal = document.getElementById('playerModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const editIndexInput = document.getElementById('editIndex');
-            const usernameInput = document.getElementById('inputUsername');
-
-            setupModalTierInputs();
-
-            if (editUser) {
-                const idx = players.findIndex(p => p.username === editUser);
-                if (idx !== -1) {
-                    const p = players[idx];
-                    modalTitle.innerText = `Sửa thông tin: ${p.username}`;
-                    editIndexInput.value = idx;
-                    usernameInput.value = p.username;
-
-                    modes.filter(m => m.id !== 'overall').forEach(m => {
-                        const sel = document.getElementById(`tier_select_${m.id}`);
-                        if (sel) sel.value = (p.tiers && p.tiers[m.id]) ? p.tiers[m.id] : '';
-                    });
-                }
-            }
-
-            updateModalCalculatedPoints();
-            modal.classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('playerModal').classList.add('hidden');
-        }
-
-        function handleFormSubmit(e) {
-            e.preventDefault();
-            const editIdx = parseInt(document.getElementById('editIndex').value);
-            const username = document.getElementById('inputUsername').value.trim();
-
-            const tiers = {};
-            modes.filter(m => m.id !== 'overall').forEach(m => {
-                const val = document.getElementById(`tier_select_${m.id}`).value;
-                tiers[m.id] = val || null;
-            });
-
-            const points = calculatePlayerPoints(tiers);
-
-            if (editIdx >= 0) {
-                players[editIdx] = { username, points, tiers };
-            }
-
-            saveAndRefresh();
-            closeModal();
-        }
-
-        function editPlayer(username) { openModal(username); }
 
         function deletePlayer(username) {
             if (confirm(`Bạn có chắc muốn xóa ${username}?`)) {
