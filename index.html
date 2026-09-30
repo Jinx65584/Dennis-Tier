@@ -66,6 +66,22 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* THANH CUỘN NGANG TINH TẾ CHO KHUNG TIERS CỦA PLAYER */
+        .player-tiers-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+        .player-tiers-scroll::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 9999px;
+        }
+        .player-tiers-scroll::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 9999px;
+        }
+        .player-tiers-scroll::-webkit-scrollbar-thumb:hover {
+            background: #f472b6;
+        }
+
         /* TIER COLORS */
         .tier-circle-tier1 { border: 2.5px solid rgba(250, 204, 21, 0.85); background-color: rgba(254, 243, 199, 0.08); }
         .tier-label-tier1 { background-color: rgba(161, 98, 7, 0.3); color: #fde047; }
@@ -296,7 +312,7 @@
         </div>
     </footer>
 
-    <!-- PLAYER PROFILE MODAL (Đã tinh chỉnh khung GUI bên ngoài vuông vắn, cân đối chiều ngang/dọc, giữ nguyên nội dung bên trong) -->
+    <!-- PLAYER PROFILE MODAL -->
     <div id="playerModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-[#162032] w-full max-w-[490px] rounded-2xl shadow-2xl p-6 sm:p-7 relative flex flex-col items-center text-center">
             
@@ -570,7 +586,8 @@
                         <div class="w-36 sm:w-40 text-left flex-shrink-0">
                             <span class="font-black text-xl text-pink-400 tracking-wide">${player.points}</span>
                         </div>
-                        <div class="flex-1 overflow-x-auto no-scrollbar py-1">
+                        <!-- Sử dụng class player-tiers-scroll để tạo thanh cuộn ngang tinh tế hiển thị rõ ràng -->
+                        <div class="flex-1 overflow-x-auto player-tiers-scroll pb-2">
                             <div class="flex items-center space-x-3">${badgesHtml}</div>
                         </div>
                         <div class="w-16 text-center flex-shrink-0">
