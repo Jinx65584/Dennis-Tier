@@ -3,14 +3,22 @@ let leaderboardData = [];
     let searchQuery = '';
 
     async function fetchLeaderboardFromAppwrite() {
-        const container = document.getElementById('leaderboard-body');
-        if (container) {
-            container.innerHTML = `
-                <div class="py-16 text-center text-gray-400 text-xs flex flex-col items-center justify-center gap-2">
-                    <span>Đang đồng bộ dữ liệu từ Appwrite...</span>
-                </div>
-            `;
+        // Tự động tìm container dựa trên nhiều ID khác nhau mà bạn có thể đang dùng trong HTML
+        const container = document.getElementById('leaderboard-body') || 
+                          document.getElementById('leaderboard') || 
+                          document.getElementById('board') ||
+                          document.querySelector('tbody');
+
+        if (!container) {
+            console.error("LỖI: Không tìm thấy thẻ HTML nào làm bảng xếp hạng trong trang!");
+            return;
         }
+
+        container.innerHTML = `
+            <div class="py-16 text-center text-gray-400 text-xs flex flex-col items-center justify-center gap-2 col-span-12">
+                <span>Đang đồng bộ dữ liệu từ Appwrite...</span>
+            </div>
+        `;
 
         try {
             const response = await fetch(`https://sgp.cloud.appwrite.io/v1/databases/6abe0bb6000caab818b9/collections/6abe0d8300108a42b831/documents`, {
@@ -21,21 +29,19 @@ let leaderboardData = [];
             });
 
             const data = await response.json();
-            console.log("Dữ liệu nhận từ Appwrite:", data); // Bật F12 Console trên web để kiểm tra nếu còn lỗi
+            console.log("🔥 DỮ LIỆU APPWRITE TRẢ VỀ:", data);
             
-            if (data.documents) {
+            if (data.documents && data.documents.length > 0) {
                 leaderboardData = data.documents.map(doc => {
                     let parsedTiers = { Sword: "Unranked", Nethop: "Unranked", SMP: "Unranked", Uhc: "Unranked", Axe: "Unranked", Vanilla: "Unranked", Mace: "Unranked" };
                     
                     let rawTierInput = doc.tiers || doc.tier || "";
 
-                    if (typeof rawTierInput === 'string') {
+                    if (typeof rawTierInput === 'string' && rawTierInput.trim() !== '') {
                         let cleanStr = rawTierInput.trim();
-                        // Nếu người chơi gõ một chữ duy nhất (ví dụ: "HT1") thì gán hết cho các mode
                         if (!cleanStr.includes(':') && !cleanStr.includes('{')) {
                             parsedTiers = { Sword: cleanStr, Nethop: cleanStr, SMP: cleanStr, Uhc: cleanStr, Axe: cleanStr, Vanilla: cleanStr, Mace: cleanStr };
                         } else {
-                            // Xử lý dạng "Sword: HT1, Nethop: HT2"
                             let parts = cleanStr.split(',');
                             parts.forEach(p => {
                                 let kv = p.split(':');
@@ -56,15 +62,17 @@ let leaderboardData = [];
                         tiers: parsedTiers
                     };
                 });
+            } else {
+                console.warn("⚠️ Collection Appwrite đang không có document nào hoặc trả về trống!");
             }
 
             renderLeaderboard();
         } catch (error) {
-            console.error("Lỗi kết nối Appwrite:", error);
+            console.error("❌ Lỗi kết nối Appwrite:", error);
             if (container) {
                 container.innerHTML = `
-                    <div class="py-16 text-center text-red-400 text-xs flex flex-col items-center justify-center gap-2">
-                        <span>Lỗi kết nối Appwrite! Hãy kiểm tra lại quyền Read (Any) trong Collection.</span>
+                    <div class="py-16 text-center text-red-400 text-xs flex flex-col items-center justify-center gap-2 col-span-12">
+                        <span>Lỗi kết nối Appwrite! Kiểm tra lại Console (F12).</span>
                     </div>
                 `;
             }
@@ -72,7 +80,10 @@ let leaderboardData = [];
     }
 
     function renderLeaderboard() {
-        const container = document.getElementById('leaderboard-body');
+        const container = document.getElementById('leaderboard-body') || 
+                          document.getElementById('leaderboard') || 
+                          document.getElementById('board') ||
+                          document.querySelector('tbody');
         if (!container) return;
 
         let filtered = leaderboardData.filter(player => {
@@ -81,7 +92,7 @@ let leaderboardData = [];
 
         if (filtered.length === 0) {
             container.innerHTML = `
-                <div class="py-16 text-center text-gray-500 text-xs flex flex-col items-center justify-center gap-2">
+                <div class="py-16 text-center text-gray-500 text-xs flex flex-col items-center justify-center gap-2 col-span-12">
                     <span>Không tìm thấy người chơi nào.</span>
                 </div>
             `;
@@ -109,7 +120,7 @@ let leaderboardData = [];
             }).join('');
 
             return `
-                <div class="grid grid-cols-12 px-8 py-4 items-center hover:bg-gray-800/30 transition-colors border-b border-gray-800/40">
+                <div class="grid grid-cols-12 px-8 py-4 items-center hover:bg-gray-800/30 transition-colors border-b border-gray-800/40 w-full">
                     <div class="col-span-1 font-extrabold text-gray-400 text-sm">#${index + 1}</div>
                     <div class="col-span-5 flex items-center gap-3.5">
                         <div class="w-10 h-10 rounded-2xl bg-gray-800/80 border border-gray-700/50 overflow-hidden flex items-center justify-center shadow-md">
