@@ -27,7 +27,7 @@
             const data = await response.json();
             
             if (data.documents) {
-                // Map dữ liệu từ Appwrite chuẩn hóa vào leaderboardData với cơ chế xử lý tiers thông minh
+                // Map dữ liệu từ Appwrite chuẩn hóa vào leaderboardData với cơ chế xử lý tiers linh hoạt
                 leaderboardData = data.documents.map(doc => {
                     let parsedTiers = { Sword: doc.tier || "Unranked" };
                     
@@ -35,15 +35,33 @@
                         if (typeof doc.tiers === 'object') {
                             parsedTiers = doc.tiers;
                         } else if (typeof doc.tiers === 'string') {
+                            let raw = doc.tiers.trim();
                             try {
-                                parsedTiers = JSON.parse(doc.tiers);
+                                parsedTiers = JSON.parse(raw);
                             } catch (e) {
-                                // Nếu người dùng gõ dạng thô như "Sword: HT1" hoặc "HT1"
-                                if (doc.tiers.includes(':')) {
-                                    const parts = doc.tiers.split(':');
-                                    parsedTiers = { [parts[0].trim()]: parts[1].trim() };
-                                } else {
-                                    parsedTiers = { Sword: doc.tiers.trim() };
+                                parsedTiers = {};
+                                // Hỗ trợ gõ nhanh phân tách bằng dấu phẩy, ví dụ: "Sword: HT1, Nethop: HT2, SMP: LT1"
+                                const entries = raw.split(',');
+                                entries.forEach(entry => {
+                                    if (entry.includes(':')) {
+                                        const parts = entry.split(':');
+                                        const modeKey = parts[0].trim();
+                                        const tierVal = parts[1].trim();
+                                        parsedTiers[modeKey] = tierVal;
+                                    }
+                                });
+                                
+                                // Nếu chỉ gõ một chuỗi đơn thuần (ví dụ: "HT1"), tự động gán cho tất cả các chế độ
+                                if (Object.keys(parsedTiers).length === 0) {
+                                    parsedTiers = { 
+                                        Sword: raw, 
+                                        Nethop: raw, 
+                                        SMP: raw, 
+                                        UHC: raw, 
+                                        Axe: raw, 
+                                        Vanilla: raw, 
+                                        Mace: raw 
+                                    };
                                 }
                             }
                         }
