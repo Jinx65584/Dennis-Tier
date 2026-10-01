@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- html2canvas -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Google Font: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,7 +68,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* THANH CUỘN NGANG CHO HUY HIỆU TIER */
         .horizontal-scroll-container {
             overflow-x: auto;
             overflow-y: hidden;
@@ -107,7 +108,6 @@
         .tier-circle-empty { border: 2.5px dashed rgba(100, 116, 139, 0.3); background-color: transparent; opacity: 0.5; }
         .tier-label-empty { background-color: rgba(30, 41, 59, 0.6); color: #64748b; opacity: 0.7; }
 
-        /* HIỆU ỨNG HOVER HÀNG NGƯỜI CHƠI */
         .player-row {
             transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
                         background-color 0.25s ease, 
@@ -264,14 +264,14 @@
                     </div>
 
                     <div id="leaderboardBody" class="flex flex-col text-sm font-semibold">
-                        <!-- Render qua Supabase API -->
+                        <!-- Render dữ liệu từ Supabase trực tiếp -->
                     </div>
                 </div>
 
-                <!-- CONTAINER CHO CÁC CHẾ ĐỘ RIÊNG (CĂN TRÊN - TOP) -->
+                <!-- CONTAINER CHO CÁC CHẾ ĐỘ RIÊNG -->
                 <div id="modeTierColumnsContent" class="hidden">
                     <div class="grid grid-cols-1 sm:grid-cols-5 gap-5" id="tierColumnsGrid">
-                        <!-- Render qua Supabase API -->
+                        <!-- Render dữ liệu từ Supabase trực tiếp -->
                     </div>
                 </div>
 
@@ -321,12 +321,10 @@
     <div id="playerModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-[#162032] w-full max-w-[490px] rounded-2xl shadow-2xl p-6 sm:p-7 relative flex flex-col items-center text-center">
             
-            <!-- Nút Đóng -->
             <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
 
-            <!-- Avatar & Khung hiệu ứng vòng lửa -->
             <div class="relative mt-2 mb-4">
                 <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-rose-500 p-1 flex items-center justify-center shadow-lg shadow-pink-500/20">
                     <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center overflow-hidden">
@@ -335,14 +333,12 @@
                 </div>
             </div>
 
-            <!-- Tên Player & Icon Cúp -->
             <div class="flex items-center justify-center gap-2 mb-5">
                 <span class="text-amber-400 text-lg"><i class="fa-solid fa-trophy"></i></span>
                 <h2 id="modalUsername" class="text-2xl font-black bg-gradient-to-r from-amber-200 via-pink-300 to-rose-400 bg-clip-text text-transparent">Player</h2>
                 <button onclick="copyProfileLink()" class="text-slate-400 hover:text-white text-xs ml-1" title="Sao chép liên kết"><i class="fa-regular fa-copy"></i></button>
             </div>
 
-            <!-- Khung Thẻ Hạng Tổng (Overall Box) -->
             <div class="w-full bg-[#1e293b] border border-slate-700/50 rounded-xl py-4 px-4 mb-5 shadow-inner">
                 <div id="modalRankNum" class="text-2xl font-black text-white mb-0.5">#1</div>
                 <div class="flex items-center justify-center gap-1.5 text-amber-400 text-xs font-black tracking-wider">
@@ -350,7 +346,6 @@
                 </div>
             </div>
 
-            <!-- Phần Tiers các mode -->
             <div class="w-full text-left">
                 <h3 class="text-xs font-extrabold text-slate-400 tracking-widest uppercase mb-2 text-center">TIERS</h3>
                 <div id="modalTiersContainer" class="bg-[#111827]/70 border border-slate-800 rounded-xl p-4 grid grid-cols-4 sm:grid-cols-7 gap-2.5 justify-items-center">
@@ -361,6 +356,14 @@
     </div>
 
     <script>
+        // CẤU HÌNH SUPABASE AN TOÀN TRÊN CLIENT
+        const SUPABASE_URL = 'https://hnrpkzjfywuqbjstddyi.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Điền Anon Key của bạn vào đây)'; 
+        // ⚠️ Thay đoạn chuỗi trên bằng Anon Key thật của dự án Supabase của bạn (Lấy trong Project Settings -> API).
+        
+        // Khởi tạo Supabase Client
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         const TIER_POINTS = {
             'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10,
             'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1
@@ -396,33 +399,35 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             renderTabs();
-            fetchTiersFromSupabase(); // Gọi dữ liệu trực tiếp từ Supabase qua API
+            fetchTiersFromSupabase();
             setupSearchListener();
             setTimeout(updateIndicatorPosition, 50);
         });
 
         window.addEventListener('resize', () => updateIndicatorPosition());
 
-        // 🌐 HÀM LẤY DỮ LIỆU TỪ SUPABASE (THÔNG QUA API ENDPOINT /api/tiers)
+        // HÀM LẤY DỮ LIỆU TRỰC TIẾP TỪ BẢNG 'tiers' TRÊN SUPABASE
         async function fetchTiersFromSupabase() {
             try {
-                const response = await fetch('/api/tiers');
-                const data = await response.json();
+                const { data, error } = await supabaseClient.from('tiers').select('*');
                 
-                // Map dữ liệu từ Supabase sang mảng players hiển thị lên giao diện
-                players = Object.keys(data).map(username => {
-                    const tiers = data[username];
-                    return {
-                        username: username,
-                        tiers: tiers,
-                        points: calculatePlayerPoints(tiers)
-                    };
-                });
+                if (error) {
+                    console.error('Lỗi khi truy vấn Supabase:', error);
+                    return;
+                }
 
-                players.sort((a, b) => b.points - a.points);
-                renderLeaderboard();
-            } catch (error) {
-                console.error('❌ Lỗi tải dữ liệu từ Supabase:', error);
+                if (data) {
+                    players = data.map(row => ({
+                        username: row.username,
+                        tiers: row.tiers || {},
+                        points: calculatePlayerPoints(row.tiers)
+                    }));
+
+                    players.sort((a, b) => b.points - a.points);
+                    renderLeaderboard();
+                }
+            } catch (err) {
+                console.error('Lỗi kết nối:', err);
             }
         }
 
@@ -603,7 +608,6 @@
                                 <span class="font-black text-xl text-pink-400 tracking-wide">${player.points}</span>
                             </div>
                             
-                            <!-- THANH NGANG CUỘN QUA LẠI CHO HUY HIỆU TIER -->
                             <div class="flex-1 horizontal-scroll-container py-1">
                                 <div class="flex items-center space-x-3 w-max">${badgesHtml}</div>
                             </div>
