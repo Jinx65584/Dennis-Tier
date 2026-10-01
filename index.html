@@ -204,9 +204,6 @@
                         <button onclick="switchMainView('leaderboard')" id="navBtnLeaderboard" class="text-pink-400 font-extrabold flex items-center gap-2 border-b-2 border-pink-400 pb-1 transition-all duration-300">
                             <i class="fa-solid fa-list-ol text-xs text-pink-400"></i> Bảng Xếp Hạng
                         </button>
-                        <button onclick="switchMainView('tierlist')" id="navBtnTierlist" class="text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1">
-                            <i class="fa-solid fa-layer-group text-xs"></i> Tier List Maker
-                        </button>
                         <a href="https://discord.gg" target="_blank" class="text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1">
                             <i class="fa-brands fa-discord text-base"></i> Discord
                         </a>
@@ -267,21 +264,21 @@
                     </div>
 
                     <div id="leaderboardBody" class="flex flex-col text-sm font-semibold">
-                        <!-- Rows rendered via JavaScript -->
+                        <!-- Render qua Supabase API -->
                     </div>
                 </div>
 
                 <!-- CONTAINER CHO CÁC CHẾ ĐỘ RIÊNG (CĂN TRÊN - TOP) -->
                 <div id="modeTierColumnsContent" class="hidden">
                     <div class="grid grid-cols-1 sm:grid-cols-5 gap-5" id="tierColumnsGrid">
-                        <!-- Được render qua JavaScript -->
+                        <!-- Render qua Supabase API -->
                     </div>
                 </div>
 
                 <div id="emptyState" class="hidden py-16 text-center">
                     <i class="fa-solid fa-ghost text-4xl text-slate-600 mb-3 block"></i>
                     <p class="text-slate-300 font-bold text-sm">Không tìm thấy người chơi nào</p>
-                    <p class="text-slate-500 text-xs mt-1">Hãy thử tìm kiếm tên khác.</p>
+                    <p class="text-slate-500 text-xs mt-1">Hãy thử tìm kiếm tên khác hoặc kiểm tra kết nối Supabase.</p>
                 </div>
             </div>
 
@@ -341,7 +338,7 @@
             <!-- Tên Player & Icon Cúp -->
             <div class="flex items-center justify-center gap-2 mb-5">
                 <span class="text-amber-400 text-lg"><i class="fa-solid fa-trophy"></i></span>
-                <h2 id="modalUsername" class="text-2xl font-black bg-gradient-to-r from-amber-200 via-pink-300 to-rose-400 bg-clip-text text-transparent">PhamQuocDat</h2>
+                <h2 id="modalUsername" class="text-2xl font-black bg-gradient-to-r from-amber-200 via-pink-300 to-rose-400 bg-clip-text text-transparent">Player</h2>
                 <button onclick="copyProfileLink()" class="text-slate-400 hover:text-white text-xs ml-1" title="Sao chép liên kết"><i class="fa-regular fa-copy"></i></button>
             </div>
 
@@ -349,7 +346,7 @@
             <div class="w-full bg-[#1e293b] border border-slate-700/50 rounded-xl py-4 px-4 mb-5 shadow-inner">
                 <div id="modalRankNum" class="text-2xl font-black text-white mb-0.5">#1</div>
                 <div class="flex items-center justify-center gap-1.5 text-amber-400 text-xs font-black tracking-wider">
-                    <i class="fa-solid fa-trophy"></i> OVERALL <span id="modalPoints" class="text-slate-300 font-bold">(108 points)</span>
+                    <i class="fa-solid fa-trophy"></i> OVERALL <span id="modalPoints" class="text-slate-300 font-bold">(0 points)</span>
                 </div>
             </div>
 
@@ -381,27 +378,17 @@
 
         const defaultModes = [
             { id: 'overall', name: 'OVERALL', icon: 'https://api.iconify.design/twemoji:trophy.svg' },
-            { id: 'sword', name: 'SWORD', icon: 'https://cdn.discordapp.com/emojis/1549311745951010867.webp?size=48&quality=lossless' },
-            { id: 'nethop', name: 'NETHOP', icon: 'https://cdn.discordapp.com/emojis/1549311747725336598.webp?size=48&quality=lossless' },
-            { id: 'smp', name: 'SMP', icon: 'https://cdn.discordapp.com/emojis/1549311750254493696.webp?size=48&quality=lossless' },
-            { id: 'uhc', name: 'UHC', icon: 'https://cdn.discordapp.com/emojis/1549311742000103443.webp?size=48&quality=lossless' },
-            { id: 'axe', name: 'AXE', icon: 'https://cdn.discordapp.com/emojis/1549311752771084348.webp?size=48&quality=lossless' },
-            { id: 'vanilla', name: 'VANILLA', icon: 'https://cdn.discordapp.com/emojis/1549311743975497759.webp?size=48&quality=lossless' },
-            { id: 'mace', name: 'MACE', icon: 'https://cdn.discordapp.com/emojis/1549311739462422558.webp?size=48&quality=lossless' }
+            { id: 'Sword', name: 'SWORD', icon: 'https://cdn.discordapp.com/emojis/1549311745951010867.webp?size=48&quality=lossless' },
+            { id: 'NetheritePot', name: 'NETHOP', icon: 'https://cdn.discordapp.com/emojis/1549311747725336598.webp?size=48&quality=lossless' },
+            { id: 'SMP', name: 'SMP', icon: 'https://cdn.discordapp.com/emojis/1549311750254493696.webp?size=48&quality=lossless' },
+            { id: 'UHC', name: 'UHC', icon: 'https://cdn.discordapp.com/emojis/1549311742000103443.webp?size=48&quality=lossless' },
+            { id: 'Axe', name: 'AXE', icon: 'https://cdn.discordapp.com/emojis/1549311752771084348.webp?size=48&quality=lossless' },
+            { id: 'Vanilla', name: 'VANILLA', icon: 'https://cdn.discordapp.com/emojis/1549311743975497759.webp?size=48&quality=lossless' },
+            { id: 'Mace', name: 'MACE', icon: 'https://cdn.discordapp.com/emojis/1549311739462422558.webp?size=48&quality=lossless' }
         ];
 
-        const defaultPlayers = [
-            { username: 'PhamQuocDat', tiers: { sword: 'HT1', nethot: 'HT3', smp: 'LT4', uhc: 'LT2', axe: 'LT2', vanilla: 'LT2' } },
-            { username: 'Dennis_25', tiers: { sword: 'HT1', smp: 'LT1' } },
-            { username: 'thekidpika', tiers: { sword: 'HT2', nethot: 'LT3', uhc: 'LT3', axe: 'LT3' } },
-            { username: 'Ghost_kevinn', tiers: { sword: 'LT2', nethot: 'LT3', smp: 'LT3', uhc: 'LT3', axe: 'HT3', vanilla: 'LT4' } },
-            { username: 'M3ob1n_', tiers: { nethot: 'LT2', smp: 'LT2', vanilla: 'LT3' } }
-        ];
-
-        let modes = JSON.parse(localStorage.getItem('dennis_modes')) || defaultModes;
-        let players = JSON.parse(localStorage.getItem('dennis_players')) || defaultPlayers;
-        players.forEach(p => { p.points = calculatePlayerPoints(p.tiers); });
-
+        let players = [];
+        let modes = defaultModes;
         let activeTab = 'overall';
         let searchQuery = '';
         let currentView = 'leaderboard';
@@ -409,12 +396,35 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             renderTabs();
-            renderLeaderboard();
+            fetchTiersFromSupabase(); // Gọi dữ liệu trực tiếp từ Supabase qua API
             setupSearchListener();
             setTimeout(updateIndicatorPosition, 50);
         });
 
         window.addEventListener('resize', () => updateIndicatorPosition());
+
+        // 🌐 HÀM LẤY DỮ LIỆU TỪ SUPABASE (THÔNG QUA API ENDPOINT /api/tiers)
+        async function fetchTiersFromSupabase() {
+            try {
+                const response = await fetch('/api/tiers');
+                const data = await response.json();
+                
+                // Map dữ liệu từ Supabase sang mảng players hiển thị lên giao diện
+                players = Object.keys(data).map(username => {
+                    const tiers = data[username];
+                    return {
+                        username: username,
+                        tiers: tiers,
+                        points: calculatePlayerPoints(tiers)
+                    };
+                });
+
+                players.sort((a, b) => b.points - a.points);
+                renderLeaderboard();
+            } catch (error) {
+                console.error('❌ Lỗi tải dữ liệu từ Supabase:', error);
+            }
+        }
 
         function loginWithDiscord(e) {
             e.preventDefault();
@@ -426,7 +436,6 @@
             const lbView = document.getElementById('leaderboardView');
             const tlView = document.getElementById('tierlistView');
             const btnLb = document.getElementById('navBtnLeaderboard');
-            const btnTl = document.getElementById('navBtnTierlist');
             const title = document.getElementById('viewTitle');
             const subtitle = document.getElementById('viewSubtitle');
 
@@ -434,7 +443,6 @@
                 lbView.classList.remove('hidden');
                 tlView.classList.add('hidden');
                 btnLb.className = "text-pink-400 font-extrabold flex items-center gap-2 border-b-2 border-pink-400 pb-1 transition-all duration-300";
-                btnTl.className = "text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1";
                 title.innerText = "Bảng Xếp Hạng";
                 subtitle.innerText = "Khám phá thứ hạng và điểm số của các chiến binh hàng đầu trong từng chế độ.";
                 renderLeaderboard();
@@ -442,7 +450,6 @@
                 lbView.classList.add('hidden');
                 tlView.classList.remove('hidden');
                 btnLb.className = "text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1";
-                btnTl.className = "text-pink-400 font-extrabold flex items-center gap-2 border-b-2 border-pink-400 pb-1 transition-all duration-300";
                 title.innerText = "Tier List Maker";
                 subtitle.innerText = `Kéo thả xếp hạng người chơi cho Chế độ: ${activeTab.toUpperCase()}`;
                 renderTierlistMaker();
@@ -519,6 +526,7 @@
         }
 
         function getTierClass(tierVal) {
+            if (!tierVal) return { circle: 'tier-circle-tier2', label: 'tier-label-tier2' };
             const cleanVal = tierVal.toUpperCase();
             if (cleanVal.endsWith('1')) return { circle: 'tier-circle-tier1', label: 'tier-label-tier1' };
             if (cleanVal.endsWith('2')) return { circle: 'tier-circle-tier2', label: 'tier-label-tier2' };
@@ -587,7 +595,7 @@
                             <div class="w-12 text-center flex-shrink-0">${rankDisplay}</div>
                             <div class="w-[38%] sm:w-[32%] flex-shrink-0">
                                 <div class="flex items-center space-x-3.5">
-                                    <img src="${skinUrl}" alt="${player.username}" onerror="this.src='https://vzge.me/bust/220/M3ob1n_'" class="w-20 h-20 object-contain flex-shrink-0 drop-shadow-lg -my-2">
+                                    <img src="${skinUrl}" alt="${player.username}" onerror="this.src='https://vzge.me/bust/220/Steve'" class="w-20 h-20 object-contain flex-shrink-0 drop-shadow-lg -my-2">
                                     <span class="font-extrabold text-white text-base group-hover:text-pink-400 transition-colors truncate">${player.username}</span>
                                 </div>
                             </div>
@@ -710,7 +718,7 @@
         function renderTierlistMaker() {
             const board = document.getElementById('tierlistBoard');
             const pool = document.getElementById('unassignedPool');
-            const currentMode = activeTab === 'overall' ? 'sword' : activeTab;
+            const currentMode = activeTab === 'overall' ? 'Sword' : activeTab;
 
             board.innerHTML = TIER_RANKS.map(rank => {
                 let headerColor = 'bg-slate-800/80 text-pink-300';
@@ -763,14 +771,14 @@
             e.currentTarget.classList.remove('drag-over');
             if (!draggedUsername) return;
 
-            const mode = activeTab === 'overall' ? 'sword' : activeTab;
+            const mode = activeTab === 'overall' ? 'Sword' : activeTab;
             const playerIndex = players.findIndex(p => p.username === draggedUsername);
             
             if (playerIndex !== -1) {
                 if (!players[playerIndex].tiers) players[playerIndex].tiers = {};
                 players[playerIndex].tiers[mode] = targetRank;
                 players[playerIndex].points = calculatePlayerPoints(players[playerIndex].tiers);
-                saveAndRefresh();
+                renderLeaderboard();
             }
         }
 
@@ -784,14 +792,8 @@
         function deletePlayer(username) {
             if (confirm(`Bạn có chắc muốn xóa ${username}?`)) {
                 players = players.filter(p => p.username !== username);
-                saveAndRefresh();
+                renderLeaderboard();
             }
-        }
-
-        function saveAndRefresh() {
-            localStorage.setItem('dennis_players', JSON.stringify(players));
-            if (currentView === 'leaderboard') renderLeaderboard();
-            else renderTierlistMaker();
         }
 
         function exportTierlistImage() {
