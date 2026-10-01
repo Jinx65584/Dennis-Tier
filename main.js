@@ -1,10 +1,7 @@
-// Danh sách người chơi lấy từ Appwrite
-    let leaderboardData = [];
-
+let leaderboardData = [];
     let currentMode = 'all';
     let searchQuery = '';
 
-    // Hàm gọi dữ liệu trực tiếp từ Appwrite Collection
     async function fetchLeaderboardFromAppwrite() {
         const container = document.getElementById('leaderboard-body');
         if (container) {
@@ -24,48 +21,36 @@
             });
 
             const data = await response.json();
+            console.log("Dữ liệu nhận từ Appwrite:", data); // Bật F12 Console trên web để kiểm tra nếu còn lỗi
             
             if (data.documents) {
                 leaderboardData = data.documents.map(doc => {
-                    let parsedTiers = { Sword: doc.tier || "Unranked" };
+                    let parsedTiers = { Sword: "Unranked", Nethop: "Unranked", SMP: "Unranked", Uhc: "Unranked", Axe: "Unranked", Vanilla: "Unranked", Mace: "Unranked" };
                     
-                    if (doc.tiers) {
-                        if (typeof doc.tiers === 'object') {
-                            parsedTiers = doc.tiers;
-                        } else if (typeof doc.tiers === 'string') {
-                            let raw = doc.tiers.trim();
-                            try {
-                                parsedTiers = JSON.parse(raw);
-                            } catch (e) {
-                                parsedTiers = {};
-                                const entries = raw.split(',');
-                                entries.forEach(entry => {
-                                    if (entry.includes(':')) {
-                                        const parts = entry.split(':');
-                                        const modeKey = parts[0].trim();
-                                        const tierVal = parts[1].trim();
-                                        const formattedKey = modeKey.charAt(0).toUpperCase() + modeKey.slice(1).toLowerCase();
-                                        parsedTiers[formattedKey] = tierVal;
-                                    }
-                                });
-                                
-                                if (Object.keys(parsedTiers).length === 0) {
-                                    parsedTiers = { 
-                                        Sword: raw, 
-                                        Nethop: raw, 
-                                        SMP: raw, 
-                                        Uhc: raw, 
-                                        Axe: raw, 
-                                        Vanilla: raw, 
-                                        Mace: raw 
-                                    };
+                    let rawTierInput = doc.tiers || doc.tier || "";
+
+                    if (typeof rawTierInput === 'string') {
+                        let cleanStr = rawTierInput.trim();
+                        // Nếu người chơi gõ một chữ duy nhất (ví dụ: "HT1") thì gán hết cho các mode
+                        if (!cleanStr.includes(':') && !cleanStr.includes('{')) {
+                            parsedTiers = { Sword: cleanStr, Nethop: cleanStr, SMP: cleanStr, Uhc: cleanStr, Axe: cleanStr, Vanilla: cleanStr, Mace: cleanStr };
+                        } else {
+                            // Xử lý dạng "Sword: HT1, Nethop: HT2"
+                            let parts = cleanStr.split(',');
+                            parts.forEach(p => {
+                                let kv = p.split(':');
+                                if (kv.length === 2) {
+                                    let k = kv[0].trim().toLowerCase();
+                                    let v = kv[1].trim();
+                                    let matchedKey = Object.keys(parsedTiers).find(item => item.toLowerCase() === k);
+                                    if (matchedKey) parsedTiers[matchedKey] = v;
                                 }
-                            }
+                            });
                         }
                     }
 
                     return {
-                        name: doc.name || doc.username || doc.username || "Unknown",
+                        name: doc.name || doc.username || "Unknown",
                         points: doc.points || 0,
                         skin: doc.skin || doc.name || doc.username || "Steve",
                         tiers: parsedTiers
@@ -75,36 +60,29 @@
 
             renderLeaderboard();
         } catch (error) {
-            console.error("Lỗi tải dữ liệu từ Appwrite:", error);
+            console.error("Lỗi kết nối Appwrite:", error);
             if (container) {
                 container.innerHTML = `
                     <div class="py-16 text-center text-red-400 text-xs flex flex-col items-center justify-center gap-2">
-                        <span>Không thể kết nối tới cơ sở dữ liệu Appwrite!</span>
+                        <span>Lỗi kết nối Appwrite! Hãy kiểm tra lại quyền Read (Any) trong Collection.</span>
                     </div>
                 `;
             }
         }
     }
 
-    // Hàm render danh sách ra HTML
     function renderLeaderboard() {
         const container = document.getElementById('leaderboard-body');
         if (!container) return;
 
         let filtered = leaderboardData.filter(player => {
-            const matchesSearch = player.name.toLowerCase().includes(searchQuery.toLowerCase());
-            if (currentMode === 'all') return matchesSearch;
-            
-            const modeKeys = Object.keys(player.tiers).map(k => k.toLowerCase());
-            const hasMode = modeKeys.includes(currentMode.toLowerCase());
-            return matchesSearch && hasMode;
+            return player.name.toLowerCase().includes(searchQuery.toLowerCase());
         });
 
         if (filtered.length === 0) {
             container.innerHTML = `
                 <div class="py-16 text-center text-gray-500 text-xs flex flex-col items-center justify-center gap-2">
-                    <img src="https://api.iconify.design/twemoji:open-mailbox-with-lowered-flag.svg" class="w-8 h-8 opacity-60" alt="Empty">
-                    <span>Chưa có người chơi nào được cập nhật tier trong chế độ này.</span>
+                    <span>Không tìm thấy người chơi nào.</span>
                 </div>
             `;
             return;
@@ -115,21 +93,17 @@
         container.innerHTML = filtered.map((player, index) => {
             const avatarUrl = `https://vzge.me/avatars/100/${player.skin}`;
 
-            // Tạo các badge hiển thị tier cho từng chế độ
             let tiersHtml = modesList.map(m => {
-                const foundKey = Object.keys(player.tiers).find(k => k.toLowerCase() === m.toLowerCase());
-                const tVal = foundKey ? player.tiers[foundKey] : '-';
-                
-                // Nếu chưa có rank thì hiện màu mờ, có rank thì hiện nổi bật màu hồng/tím
-                const isRanked = tVal !== '-' && tVal.toLowerCase() !== 'unranked';
-                const badgeStyle = isRanked 
+                let val = player.tiers[m] || '-';
+                let isRanked = val !== '-' && val.toLowerCase() !== 'unranked';
+                let style = isRanked 
                     ? 'bg-pink-500/20 border-pink-500/40 text-pink-300 font-extrabold' 
                     : 'bg-gray-800/40 border-gray-700/30 text-gray-500 font-normal';
 
                 return `
                     <div class="flex flex-col items-center justify-center gap-1 w-9">
                         <span class="text-[10px] text-gray-400 uppercase tracking-tighter">${m.slice(0,3)}</span>
-                        <span class="text-[11px] px-1.5 py-0.5 rounded border ${badgeStyle} shadow-sm">${tVal}</span>
+                        <span class="text-[11px] px-1.5 py-0.5 rounded border ${style} shadow-sm">${val}</span>
                     </div>
                 `;
             }).join('');
@@ -152,10 +126,8 @@
         }).join('');
     }
 
-    // Hàm xử lý khi bấm nút chọn chế độ chơi
     function filterMode(mode) {
         currentMode = mode;
-
         const buttons = document.querySelectorAll('.mode-btn');
         buttons.forEach(btn => {
             const btnMode = btn.getAttribute('data-mode');
@@ -165,11 +137,9 @@
                 btn.className = "mode-btn flex flex-col items-center justify-center gap-1.5 px-4 py-3 rounded-2xl text-[11px] font-semibold bg-gray-900/80 text-gray-400 hover:text-pink-300 hover:bg-gray-800 border border-gray-800/80 hover:border-pink-500/30 whitespace-nowrap transition-all duration-300 min-w-[85px]";
             }
         });
-
         renderLeaderboard();
     }
 
-    // Lắng nghe sự kiện tìm kiếm và khởi chạy
     document.addEventListener('DOMContentLoaded', () => {
         const searchInput = document.getElementById('search-input');
         if (searchInput) {
@@ -178,7 +148,6 @@
                 renderLeaderboard();
             });
         }
-
         fetchLeaderboardFromAppwrite();
         filterMode('all');
     });
