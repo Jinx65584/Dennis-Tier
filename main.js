@@ -1,12 +1,53 @@
-// Danh sách người chơi hiện tại đang để trống. 
-// Khi có người được test tier, bạn thêm vào đây, bảng sẽ tự động hiển thị thứ tự #1, #2, #3,... tương ứng.
-const leaderboardData = [
-    // Ví dụ khi có người chơi, bạn thêm dạng như thế này:
-    // { name: "PhamQuocDat", points: 108, skin: "PhamQuocDat", tiers: { Sword: "LT2", Nethop: "LT2", SMP: "LT2", Uhc: "LT2", Axe: "HT3", Vanilla: "LT3", Mace: "LT3" } }
-];
+// Danh sách người chơi lấy từ Appwrite
+let leaderboardData = [];
 
 let currentMode = 'all';
 let searchQuery = '';
+
+// Hàm gọi dữ liệu trực tiếp từ Appwrite Collection
+async function fetchLeaderboardFromAppwrite() {
+    const container = document.getElementById('leaderboard-body');
+    if (container) {
+        container.innerHTML = `
+            <div class="py-16 text-center text-gray-400 text-xs flex flex-col items-center justify-center gap-2">
+                <span>Đang đồng bộ dữ liệu từ Appwrite...</span>
+            </div>
+        `;
+    }
+
+    try {
+        // Gọi API công khai của Appwrite (Yêu cầu collection players đã bật quyền Read cho 'Any')
+        const response = await fetch(`https://sgp.cloud.appwrite.io/v1/databases/6abe0bb6000caab818b9/collections/6abe0d8300108a42b831/documents`, {
+            headers: {
+                'X-Appwrite-Project': '6abe0b1f00000e883399',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+        
+        if (data.documents) {
+            // Map dữ liệu từ Appwrite chuẩn hóa vào leaderboardData
+            leaderboardData = data.documents.map(doc => ({
+                name: doc.name || doc.username || "Unknown",
+                points: doc.points || 0,
+                skin: doc.skin || doc.name || "Steve",
+                tiers: doc.tiers ? (typeof doc.tiers === 'string' ? JSON.parse(doc.tiers) : doc.tiers) : { Sword: doc.tier || "Unranked" }
+            }));
+        }
+
+        renderLeaderboard();
+    } catch (error) {
+        console.error("Lỗi tải dữ liệu từ Appwrite:", error);
+        if (container) {
+            container.innerHTML = `
+                <div class="py-16 text-center text-red-400 text-xs flex flex-col items-center justify-center gap-2">
+                    <span>Không thể kết nối tới cơ sở dữ liệu Appwrite!</span>
+                </div>
+            `;
+        }
+    }
+}
 
 // Hàm render danh sách ra HTML
 function renderLeaderboard() {
@@ -80,5 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Tự động tải dữ liệu từ Appwrite ngay khi load trang
+    fetchLeaderboardFromAppwrite();
     filterMode('all');
 });
