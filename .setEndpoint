@@ -178,7 +178,7 @@
         const { Client, Databases, Query } = Appwrite;
         
         const client = new Client()
-            .setEndpoint('https://cloud.appwrite.io/v1') 
+            .setEndpoint('https://sgp.cloud.appwrite.io/v1') 
             .setProject('6abe0b1f00000e883399'); // Project ID của bạn
 
         const databases = new Databases(client);
