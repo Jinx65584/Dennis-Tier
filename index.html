@@ -1,19 +1,190 @@
-<!-- Appwrite Web SDK CDN -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dennis Tier - Bảng Xếp Hạng PvP</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0b0f19; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        .mode-btn.active { color: #f472b6 !important; }
+        .tier-circle-tier1 { background: rgba(217, 119, 6, 0.2); border: 2px solid #d97706; color: #f59e0b; }
+        .tier-label-tier1 { background: #d97706; color: #fff; }
+        .tier-circle-tier2 { background: rgba(100, 116, 139, 0.2); border: 2px solid #64748b; color: #94a3b8; }
+        .tier-label-tier2 { background: #64748b; color: #fff; }
+        .tier-circle-tier3 { background: rgba(194, 65, 12, 0.2); border: 2px solid #c2410c; color: #ea580c; }
+        .tier-label-tier3 { background: #c2410c; color: #fff; }
+        .tier-circle-tier4 { background: rgba(22, 101, 52, 0.2); border: 2px solid #166534; color: #22c55e; }
+        .tier-label-tier4 { background: #166534; color: #fff; }
+        .tier-circle-tier5 { background: rgba(51, 65, 85, 0.2); border: 2px solid #334155; color: #64748b; }
+        .tier-label-tier5 { background: #334155; color: #fff; }
+        .tier-circle-empty { background: rgba(30, 41, 59, 0.4); border: 2px dashed #334155; color: #475569; }
+        .tier-label-empty { background: #1e293b; color: #64748b; }
+        .player-row { transition: all 0.2s ease; cursor: pointer; }
+        .player-row:hover { background-color: rgba(30, 41, 59, 0.6); }
+        .horizontal-scroll-container::-webkit-scrollbar { height: 4px; }
+        .horizontal-scroll-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-pink-500 selection:text-white">
+
+    <!-- HEADER -->
+    <header class="border-b border-slate-800/80 bg-[#0f172a]/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-pink-600 to-rose-500 text-white font-black px-3 py-1.5 rounded-xl shadow-lg shadow-pink-600/20 text-lg tracking-wider">D</div>
+                <div>
+                    <h1 class="font-extrabold tracking-wider text-base text-white">DENNIS TIER</h1>
+                    <p class="text-[10px] text-slate-400 font-semibold tracking-widest uppercase">PvP Leaderboard</p>
+                </div>
+            </div>
+
+            <!-- MENU NAVIGATION -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <button id="navBtnLeaderboard" onclick="switchMainView('leaderboard')" class="text-pink-400 font-extrabold flex items-center gap-2 border-b-2 border-pink-400 pb-1 transition-all duration-300">
+                    <i class="fa-solid fa-trophy"></i> Bảng Xếp Hạng
+                </button>
+                <button onclick="switchMainView('tierlist')" class="text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1 font-semibold">
+                    <i class="fa-solid fa-layer-group"></i> Tier List Maker
+                </button>
+                <a href="https://discord.com" target="_blank" class="text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1 font-semibold">
+                    <i class="fa-brands fa-discord"></i> Discord
+                </a>
+            </nav>
+
+            <!-- RIGHT ACTIONS -->
+            <div class="flex items-center space-x-4">
+                <div class="relative hidden sm:block">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
+                    <input type="text" id="searchInput" placeholder="Tìm người chơi..." class="bg-slate-900/80 border border-slate-800 rounded-full pl-9 pr-4 py-1.5 text-xs text-white focus:outline-none focus:border-pink-500 w-48 transition-all">
+                </div>
+                <button onclick="loginWithDiscord(event)" class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-lg shadow-[#5865F2]/20 flex items-center gap-2">
+                    <i class="fa-brands fa-discord"></i> Đăng nhập với Discord
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+        <!-- TITLE SECTION -->
+        <div class="mb-8">
+            <h2 id="viewTitle" class="text-2xl font-black text-white tracking-tight">Bảng Xếp Hạng</h2>
+            <p id="viewSubtitle" class="text-slate-400 text-sm mt-1">Khám phá thứ hạng và điểm số của các chiến binh hàng đầu trong từng chế độ.</p>
+        </div>
+
+        <!-- MODE TABS -->
+        <div class="bg-[#111827] border border-slate-800/80 rounded-2xl p-1.5 mb-8 relative shadow-lg">
+            <div id="modeTabsWrapper" class="flex items-center overflow-x-auto relative z-10 space-x-1">
+                <!-- Tabs sẽ được render tự động qua JavaScript tại đây -->
+                <div id="activeIndicator" class="absolute top-1.5 bottom-1.5 bg-slate-800/90 rounded-xl transition-all duration-300 pointer-events-none shadow-sm border border-slate-700/50"></div>
+            </div>
+        </div>
+
+        <!-- VIEW: LEADERBOARD -->
+        <div id="leaderboardView" class="space-y-6">
+            <div id="overallLeaderboardContent" class="bg-[#111827] border border-slate-800/80 rounded-2xl overflow-hidden shadow-2xl">
+                <div class="flex items-center px-4 py-3.5 bg-slate-900/60 border-b border-slate-800 text-xs font-bold text-slate-400 tracking-wider">
+                    <div class="w-12 text-center">#</div>
+                    <div class="w-[38%] sm:w-[32%]">PLAYER</div>
+                    <div class="w-36 sm:w-40 text-left">POINTS</div>
+                    <div class="flex-1 text-center">TIERS</div>
+                    <div class="w-16 text-center">ACTIONS</div>
+                </div>
+                <div id="leaderboardBody" class="divide-y divide-slate-800/60">
+                    <!-- Danh sách người chơi sẽ hiện ở đây -->
+                </div>
+            </div>
+
+            <!-- VIEW: MODE TIER COLUMNS (Khi chọn tab chế độ cụ thể) -->
+            <div id="modeTierColumnsContent" class="hidden">
+                <div id="tierColumnsGrid" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <!-- Các cột tier sẽ tự động sinh ở đây -->
+                </div>
+            </div>
+
+            <!-- EMPTY STATE -->
+            <div id="emptyState" class="hidden py-20 text-center">
+                <div class="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-600 text-2xl border border-slate-800">
+                    <i class="fa-solid fa-ghost"></i>
+                </div>
+                <h3 class="text-white font-bold text-base">Không tìm thấy người chơi nào</h3>
+                <p class="text-slate-500 text-xs mt-1">Hãy thử tìm kiếm từ khóa khác hoặc kiểm tra lại kết nối Appwrite.</p>
+            </div>
+        </div>
+
+        <!-- VIEW: TIER LIST MAKER -->
+        <div id="tierlistView" class="hidden space-y-6">
+            <div class="flex justify-between items-center bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+                <p class="text-xs text-slate-400">Kéo và thả thẻ người chơi vào các hàng Tier bên dưới để cập nhật nhanh.</p>
+                <button onclick="exportTierlistImage()" class="bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-lg shadow-pink-600/20 flex items-center gap-2">
+                    <i class="fa-solid fa-download"></i> Tải ảnh Tierlist
+                </button>
+            </div>
+            <div id="tierlistBoard" class="space-y-3"></div>
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
+                <h4 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3">Chưa xếp hạng trong chế độ này:</h4>
+                <div id="unassignedPool" class="flex flex-wrap gap-2.5 min-h-[60px] items-center"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800/80 bg-[#0b0f19] py-6 text-center text-xs text-slate-500 mt-12">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>&copy; 2026 DENNIS TIER | Minecraft PvP Ranking System. All rights reserved.</p>
+            <div class="flex items-center space-x-6">
+                <a href="#" class="hover:text-slate-400 transition-colors">Điều khoản</a>
+                <a href="#" class="hover:text-slate-400 transition-colors">Bảo mật</a>
+                <a href="#" class="hover:text-slate-400 transition-colors">Discord Community</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- PLAYER MODAL -->
+    <div id="playerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="bg-[#111827] border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="flex items-center space-x-4 mb-6">
+                <img id="modalSkinImg" src="" class="w-16 h-16 object-contain drop-shadow-lg" alt="Skin">
+                <div>
+                    <h3 id="modalUsername" class="text-xl font-black text-white"></h3>
+                    <p class="text-xs font-semibold text-pink-400 mt-0.5"><span id="modalRankNum">#1</span> <span id="modalPoints" class="text-slate-400 font-normal"></span></p>
+                </div>
+            </div>
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Chi tiết Tiers các chế độ</h4>
+            <div id="modalTiersContainer" class="grid grid-cols-4 gap-2 mb-6"></div>
+            <div class="flex gap-3">
+                <button onclick="copyProfileLink()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl transition-all">Sao chép liên kết</button>
+                <button onclick="closeModal()" class="flex-1 bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-lg shadow-pink-600/20">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appwrite Web SDK CDN -->
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <!-- html2canvas dùng để xuất ảnh tierlist -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <script>
         // CẤU HÌNH APPWRITE
         const { Client, Databases, Query } = Appwrite;
         
         const client = new Client()
-            .setEndpoint('https://cloud.appwrite.io/v1') // Hoặc endpoint Appwrite của bạn
-            .setProject('6abe0b1f00000e883399');            // ⚠️️ Thay bằng Project ID của bạn
+            .setEndpoint('https://cloud.appwrite.io/v1') 
+            .setProject('6abe0b1f00000e883399'); // Project ID của bạn
 
         const databases = new Databases(client);
         
-        // ⚠️ Thay bằng Database ID và Collection ID của bạn trên Appwrite
-        const DATABASE_ID = '6abe0bb6000caab818b9';
-        const COLLECTION_ID = '6abe0d8300108a42b831'; 
+        const DATABASE_ID = '6abe0bb6000caab818b9'; // Database ID của bạn
+        const COLLECTION_ID = '6abe0d8300108a42b831'; // Collection ID của bạn
 
         const TIER_POINTS = {
             'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10,
@@ -23,7 +194,6 @@
         function calculatePlayerPoints(tiersObj) {
             if (!tiersObj) return 0;
             let total = 0;
-            // Nếu tiersObj lưu dưới dạng JSON string từ Appwrite, cần parse ra object
             let tiers = typeof tiersObj === 'string' ? JSON.parse(tiersObj) : tiersObj;
             for (const modeId in tiers) {
                 const tierVal = tiers[modeId];
@@ -59,13 +229,12 @@
 
         window.addEventListener('resize', () => updateIndicatorPosition());
 
-        // HÀM LẤY DỮ LIỆU TỪ APPWRITE
         async function fetchTiersFromAppwrite() {
             try {
                 const response = await databases.listDocuments(
                     DATABASE_ID,
                     COLLECTION_ID,
-                    [Query.limit(100)] // Lấy tối đa 100 người chơi, có thể chỉnh lại
+                    [Query.limit(100)]
                 );
 
                 if (response && response.documents) {
@@ -113,7 +282,7 @@
             } else {
                 lbView.classList.add('hidden');
                 tlView.classList.remove('hidden');
-                btnLb.className = "text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1";
+                btnLb.className = "text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1 font-semibold";
                 title.innerText = "Tier List Maker";
                 subtitle.innerText = `Kéo thả xếp hạng người chơi cho Chế độ: ${activeTab.toUpperCase()}`;
                 renderTierlistMaker();
@@ -266,11 +435,9 @@
                             <div class="w-36 sm:w-40 text-left flex-shrink-0">
                                 <span class="font-black text-xl text-pink-400 tracking-wide">${player.points}</span>
                             </div>
-                            
                             <div class="flex-1 horizontal-scroll-container py-1">
                                 <div class="flex items-center space-x-3 w-max">${badgesHtml}</div>
                             </div>
-
                             <div class="w-16 text-center flex-shrink-0">
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button onclick="event.stopPropagation(); deletePlayer('${player.id}', '${player.username}')" class="text-slate-400 hover:text-rose-400 p-1.5 transition-colors text-sm ml-1" title="Xóa player"><i class="fa-solid fa-trash"></i></button>
@@ -442,7 +609,6 @@
                 player.tiers[mode] = targetRank;
                 player.points = calculatePlayerPoints(player.tiers);
                 
-                // Đồng thời cập nhật lên Appwrite Database nếu cần
                 try {
                     await databases.updateDocument(
                         DATABASE_ID,
@@ -487,3 +653,5 @@
             });
         }
     </script>
+</body>
+</html>
