@@ -44,7 +44,6 @@
                                         const parts = entry.split(':');
                                         const modeKey = parts[0].trim();
                                         const tierVal = parts[1].trim();
-                                        // Chuẩn hóa key viết hoa chữ cái đầu cho khớp với giao diện
                                         const formattedKey = modeKey.charAt(0).toUpperCase() + modeKey.slice(1).toLowerCase();
                                         parsedTiers[formattedKey] = tierVal;
                                     }
@@ -66,9 +65,9 @@
                     }
 
                     return {
-                        name: doc.name || doc.username || "Unknown",
+                        name: doc.name || doc.username || doc.username || "Unknown",
                         points: doc.points || 0,
-                        skin: doc.skin || doc.name || "Steve",
+                        skin: doc.skin || doc.name || doc.username || "Steve",
                         tiers: parsedTiers
                     };
                 });
@@ -92,15 +91,12 @@
         const container = document.getElementById('leaderboard-body');
         if (!container) return;
 
-        // Lọc theo chế độ chơi nếu không phải 'all'
         let filtered = leaderboardData.filter(player => {
             const matchesSearch = player.name.toLowerCase().includes(searchQuery.toLowerCase());
             if (currentMode === 'all') return matchesSearch;
             
-            // Tìm kiếm không phân biệt hoa thường cho các key trong tiers
             const modeKeys = Object.keys(player.tiers).map(k => k.toLowerCase());
             const hasMode = modeKeys.includes(currentMode.toLowerCase());
-            
             return matchesSearch && hasMode;
         });
 
@@ -119,16 +115,27 @@
         container.innerHTML = filtered.map((player, index) => {
             const avatarUrl = `https://vzge.me/avatars/100/${player.skin}`;
 
-            // Tạo chuỗi hiển thị các tier nhỏ theo từng icon chế độ
+            // Tạo các badge hiển thị tier cho từng chế độ
             let tiersHtml = modesList.map(m => {
-                // Tìm kiếm key trong player.tiers không phân biệt hoa thường
                 const foundKey = Object.keys(player.tiers).find(k => k.toLowerCase() === m.toLowerCase());
                 const tVal = foundKey ? player.tiers[foundKey] : '-';
-                return `<div class="w-8 text-center text-[11px] font-bold text-gray-300" title="${m}: ${tVal}">${tVal}</div>`;
+                
+                // Nếu chưa có rank thì hiện màu mờ, có rank thì hiện nổi bật màu hồng/tím
+                const isRanked = tVal !== '-' && tVal.toLowerCase() !== 'unranked';
+                const badgeStyle = isRanked 
+                    ? 'bg-pink-500/20 border-pink-500/40 text-pink-300 font-extrabold' 
+                    : 'bg-gray-800/40 border-gray-700/30 text-gray-500 font-normal';
+
+                return `
+                    <div class="flex flex-col items-center justify-center gap-1 w-9">
+                        <span class="text-[10px] text-gray-400 uppercase tracking-tighter">${m.slice(0,3)}</span>
+                        <span class="text-[11px] px-1.5 py-0.5 rounded border ${badgeStyle} shadow-sm">${tVal}</span>
+                    </div>
+                `;
             }).join('');
 
             return `
-                <div class="grid grid-cols-12 px-8 py-4 items-center hover:bg-gray-800/30 transition-colors">
+                <div class="grid grid-cols-12 px-8 py-4 items-center hover:bg-gray-800/30 transition-colors border-b border-gray-800/40">
                     <div class="col-span-1 font-extrabold text-gray-400 text-sm">#${index + 1}</div>
                     <div class="col-span-5 flex items-center gap-3.5">
                         <div class="w-10 h-10 rounded-2xl bg-gray-800/80 border border-gray-700/50 overflow-hidden flex items-center justify-center shadow-md">
@@ -137,7 +144,7 @@
                         <span class="font-bold text-white text-sm tracking-wide">${player.name}</span>
                     </div>
                     <div class="col-span-2 text-center font-extrabold text-pink-400 text-sm">${player.points} pts</div>
-                    <div class="col-span-4 flex items-center justify-end gap-3 pr-4 overflow-x-auto">
+                    <div class="col-span-4 flex items-center justify-end gap-1.5 pr-2 overflow-x-auto">
                         ${tiersHtml}
                     </div>
                 </div>
