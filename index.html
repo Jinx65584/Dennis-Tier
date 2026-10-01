@@ -104,7 +104,7 @@
         .tier-circle-tier5 { border: 2.5px solid rgba(209, 213, 219, 0.45); background-color: rgba(249, 250, 251, 0.08); }
         .tier-label-tier5 { background-color: rgba(107, 114, 128, 0.3); color: #d1d5db; }
 
-        .tier-circle-empty { border: 2.5px dashed rgba(100, 116, 139, 0.3); background-color: transparent; opacity: 0.5; }
+        .tier-circle-empty { border: 2.5px dashed rgba(100, 116, 139, 0.4); background-color: transparent; opacity: 0.6; }
         .tier-label-empty { background-color: rgba(30, 41, 59, 0.6); color: #64748b; opacity: 0.7; }
 
         /* HIỆU ỨNG HOVER HÀNG NGƯỜI CHƠI */
@@ -278,7 +278,7 @@
                 <div id="emptyState" class="hidden py-16 text-center">
                     <i class="fa-solid fa-ghost text-4xl text-slate-600 mb-3 block"></i>
                     <p class="text-slate-300 font-bold text-sm">Không tìm thấy người chơi nào</p>
-                    <p class="text-slate-500 text-xs mt-1">Hãy thử tìm kiếm tên khác.</p>
+                    <p class="text-slate-500 text-xs mt-1">Hãy thử tìm kiếm tên khác hoặc kiểm tra lại Appwrite.</p>
                 </div>
             </div>
 
@@ -338,7 +338,7 @@
             <!-- Tên Player & Icon Cúp -->
             <div class="flex items-center justify-center gap-2 mb-5">
                 <span class="text-amber-400 text-lg"><i class="fa-solid fa-trophy"></i></span>
-                <h2 id="modalUsername" class="text-2xl font-black bg-gradient-to-r from-amber-200 via-pink-300 to-rose-400 bg-clip-text text-transparent">PhamQuocDat</h2>
+                <h2 id="modalUsername" class="text-2xl font-black bg-gradient-to-r from-amber-200 via-pink-300 to-rose-400 bg-clip-text text-transparent">Player</h2>
                 <button onclick="copyProfileLink()" class="text-slate-400 hover:text-white text-xs ml-1" title="Sao chép liên kết"><i class="fa-regular fa-copy"></i></button>
             </div>
 
@@ -346,21 +346,36 @@
             <div class="w-full bg-[#1e293b] border border-slate-700/50 rounded-xl py-4 px-4 mb-5 shadow-inner">
                 <div id="modalRankNum" class="text-2xl font-black text-white mb-0.5">#1</div>
                 <div class="flex items-center justify-center gap-1.5 text-amber-400 text-xs font-black tracking-wider">
-                    <i class="fa-solid fa-trophy"></i> OVERALL <span id="modalPoints" class="text-slate-300 font-bold">(108 points)</span>
+                    <i class="fa-solid fa-trophy"></i> OVERALL <span id="modalPoints" class="text-slate-300 font-bold">(0 points)</span>
                 </div>
             </div>
 
             <!-- Phần Tiers các mode -->
             <div class="w-full text-left">
                 <h3 class="text-xs font-extrabold text-slate-400 tracking-widest uppercase mb-2 text-center">TIERS</h3>
-                <div id="modalTiersContainer" class="bg-[#111827]/70 border border-slate-800 rounded-xl p-4 grid grid-cols-4 sm:grid-cols-7 gap-2.5 justify-items-center">
+                <div id="modalTiersContainer" class="bg-[#111827]/70 border border-slate-800 rounded-xl p-4 flex flex-wrap items-center justify-center gap-3.5">
                     <!-- Render qua JS -->
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Appwrite Web SDK CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+
     <script>
+        // CẤU HÌNH APPWRITE
+        const { Client, Databases, Query } = Appwrite;
+        
+        const client = new Client()
+            .setEndpoint('https://sgp.cloud.appwrite.io/v1') 
+            .setProject('6abe0b1f00000e883399'); // Project ID của bạn
+
+        const databases = new Databases(client);
+        
+        const DATABASE_ID = '6abe0bb6000caab818b9'; // Database ID của bạn
+        const COLLECTION_ID = '6abe0d8300108a42b831'; // Collection ID của bạn
+
         const TIER_POINTS = {
             'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10,
             'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1
@@ -369,8 +384,9 @@
         function calculatePlayerPoints(tiersObj) {
             if (!tiersObj) return 0;
             let total = 0;
-            for (const modeId in tiersObj) {
-                const tierVal = tiersObj[modeId];
+            let tiers = typeof tiersObj === 'string' ? JSON.parse(tiersObj) : tiersObj;
+            for (const modeId in tiers) {
+                const tierVal = tiers[modeId];
                 if (tierVal && TIER_POINTS[tierVal]) total += TIER_POINTS[tierVal];
             }
             return total;
@@ -378,27 +394,17 @@
 
         const defaultModes = [
             { id: 'overall', name: 'OVERALL', icon: 'https://api.iconify.design/twemoji:trophy.svg' },
-            { id: 'sword', name: 'SWORD', icon: 'https://cdn.discordapp.com/emojis/1549311745951010867.webp?size=48&quality=lossless' },
-            { id: 'nethop', name: 'NETHOP', icon: 'https://cdn.discordapp.com/emojis/1549311747725336598.webp?size=48&quality=lossless' },
-            { id: 'smp', name: 'SMP', icon: 'https://cdn.discordapp.com/emojis/1549311750254493696.webp?size=48&quality=lossless' },
-            { id: 'uhc', name: 'UHC', icon: 'https://cdn.discordapp.com/emojis/1549311742000103443.webp?size=48&quality=lossless' },
-            { id: 'axe', name: 'AXE', icon: 'https://cdn.discordapp.com/emojis/1549311752771084348.webp?size=48&quality=lossless' },
-            { id: 'vanilla', name: 'VANILLA', icon: 'https://cdn.discordapp.com/emojis/1549311743975497759.webp?size=48&quality=lossless' },
-            { id: 'mace', name: 'MACE', icon: 'https://cdn.discordapp.com/emojis/1549311739462422558.webp?size=48&quality=lossless' }
+            { id: 'Sword', name: 'SWORD', icon: 'https://cdn.discordapp.com/emojis/1549311745951010867.webp?size=48&quality=lossless' },
+            { id: 'NetheritePot', name: 'NETHOP', icon: 'https://cdn.discordapp.com/emojis/1549311747725336598.webp?size=48&quality=lossless' },
+            { id: 'SMP', name: 'SMP', icon: 'https://cdn.discordapp.com/emojis/1549311750254493696.webp?size=48&quality=lossless' },
+            { id: 'UHC', name: 'UHC', icon: 'https://cdn.discordapp.com/emojis/1549311742000103443.webp?size=48&quality=lossless' },
+            { id: 'Axe', name: 'AXE', icon: 'https://cdn.discordapp.com/emojis/1549311752771084348.webp?size=48&quality=lossless' },
+            { id: 'Vanilla', name: 'VANILLA', icon: 'https://cdn.discordapp.com/emojis/1549311743975497759.webp?size=48&quality=lossless' },
+            { id: 'Mace', name: 'MACE', icon: 'https://cdn.discordapp.com/emojis/1549311739462422558.webp?size=48&quality=lossless' }
         ];
 
-        const defaultPlayers = [
-            { username: 'PhamQuocDat', tiers: { sword: 'HT1', nethot: 'HT3', smp: 'LT4', uhc: 'LT2', axe: 'LT2', vanilla: 'LT2' } },
-            { username: 'Dennis_25', tiers: { sword: 'HT1', smp: 'LT1' } },
-            { username: 'thekidpika', tiers: { sword: 'HT2', nethot: 'LT3', uhc: 'LT3', axe: 'LT3' } },
-            { username: 'Ghost_kevinn', tiers: { sword: 'LT2', nethot: 'LT3', smp: 'LT3', uhc: 'LT3', axe: 'HT3', vanilla: 'LT4' } },
-            { username: 'M3ob1n_', tiers: { nethot: 'LT2', smp: 'LT2', vanilla: 'LT3' } }
-        ];
-
-        let modes = JSON.parse(localStorage.getItem('dennis_modes')) || defaultModes;
-        let players = JSON.parse(localStorage.getItem('dennis_players')) || defaultPlayers;
-        players.forEach(p => { p.points = calculatePlayerPoints(p.tiers); });
-
+        let players = [];
+        let modes = defaultModes;
         let activeTab = 'overall';
         let searchQuery = '';
         let currentView = 'leaderboard';
@@ -406,12 +412,42 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             renderTabs();
-            renderLeaderboard();
+            fetchTiersFromAppwrite();
             setupSearchListener();
             setTimeout(updateIndicatorPosition, 50);
         });
 
         window.addEventListener('resize', () => updateIndicatorPosition());
+
+        async function fetchTiersFromAppwrite() {
+            try {
+                const response = await databases.listDocuments(
+                    DATABASE_ID,
+                    COLLECTION_ID,
+                    [Query.limit(100)]
+                );
+
+                if (response && response.documents) {
+                    players = response.documents.map(doc => {
+                        let parsedTiers = doc.tiers;
+                        if (typeof parsedTiers === 'string') {
+                            try { parsedTiers = JSON.parse(parsedTiers); } catch(e) { parsedTiers = {}; }
+                        }
+                        return {
+                            id: doc.$id,
+                            username: doc.username,
+                            tiers: parsedTiers || {},
+                            points: calculatePlayerPoints(parsedTiers)
+                        };
+                    });
+
+                    players.sort((a, b) => b.points - a.points);
+                    renderLeaderboard();
+                }
+            } catch (err) {
+                console.error('Lỗi kết nối Appwrite:', err);
+            }
+        }
 
         function loginWithDiscord(e) {
             e.preventDefault();
@@ -513,6 +549,7 @@
         }
 
         function getTierClass(tierVal) {
+            if (!tierVal) return { circle: 'tier-circle-tier2', label: 'tier-label-tier2' };
             const cleanVal = tierVal.toUpperCase();
             if (cleanVal.endsWith('1')) return { circle: 'tier-circle-tier1', label: 'tier-label-tier1' };
             if (cleanVal.endsWith('2')) return { circle: 'tier-circle-tier2', label: 'tier-label-tier2' };
@@ -559,7 +596,7 @@
                             return `
                                 <div class="flex flex-col items-center gap-1.5 flex-shrink-0 min-w-[48px] opacity-40">
                                     <div class="w-10 h-10 rounded-full tier-circle-empty flex items-center justify-center">
-                                        <img src="${mode.icon}" class="w-5 h-5 object-contain opacity-50" alt="${mode.name}">
+                                        <img src="${mode.icon}" class="w-5 h-5 object-contain opacity-40 grayscale brightness-75" alt="${mode.name}">
                                     </div>
                                     <span class="tier-label-empty text-xs font-black px-2 py-0.5 rounded leading-none">-</span>
                                 </div>
@@ -581,7 +618,7 @@
                             <div class="w-12 text-center flex-shrink-0">${rankDisplay}</div>
                             <div class="w-[38%] sm:w-[32%] flex-shrink-0">
                                 <div class="flex items-center space-x-3.5">
-                                    <img src="${skinUrl}" alt="${player.username}" onerror="this.src='https://vzge.me/bust/220/M3ob1n_'" class="w-20 h-20 object-contain flex-shrink-0 drop-shadow-lg -my-2">
+                                    <img src="${skinUrl}" alt="${player.username}" onerror="this.src='https://vzge.me/bust/220/Steve'" class="w-20 h-20 object-contain flex-shrink-0 drop-shadow-lg -my-2">
                                     <span class="font-extrabold text-white text-base group-hover:text-pink-400 transition-colors truncate">${player.username}</span>
                                 </div>
                             </div>
@@ -596,7 +633,7 @@
 
                             <div class="w-16 text-center flex-shrink-0">
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onclick="event.stopPropagation(); deletePlayer('${player.username}')" class="text-slate-400 hover:text-rose-400 p-1.5 transition-colors text-sm ml-1" title="Xóa player"><i class="fa-solid fa-trash"></i></button>
+                                    <button onclick="event.stopPropagation(); deletePlayer('${player.id}', '${player.username}')" class="text-slate-400 hover:text-rose-400 p-1.5 transition-colors text-sm ml-1" title="Xóa player"><i class="fa-solid fa-trash"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -670,21 +707,21 @@
                 const tierVal = player.tiers ? player.tiers[mode.id] : null;
                 if (!tierVal) {
                     return `
-                        <div class="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-900/40 border border-slate-800/80 aspect-square w-full opacity-40">
-                            <div class="w-8 h-8 rounded-full tier-circle-empty flex items-center justify-center mb-1">
-                                <img src="${mode.icon}" class="w-4 h-4 object-contain opacity-50" alt="${mode.name}">
+                        <div class="flex flex-col items-center gap-1.5 flex-shrink-0 opacity-40">
+                            <div class="w-10 h-10 rounded-full tier-circle-empty flex items-center justify-center shadow-sm">
+                                <img src="${mode.icon}" class="w-5 h-5 object-contain opacity-40 grayscale brightness-75" alt="${mode.name}">
                             </div>
-                            <span class="tier-label-empty text-[10px] font-black px-1.5 py-0.5 rounded leading-none">-</span>
+                            <span class="tier-label-empty text-xs font-black px-2 py-0.5 rounded leading-none">-</span>
                         </div>
                     `;
                 }
                 const tClass = getTierClass(tierVal);
                 return `
-                    <div class="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-900/40 border border-slate-800/80 aspect-square w-full">
-                        <div class="w-8 h-8 rounded-full ${tClass.circle} flex items-center justify-center shadow-sm mb-1">
-                            <img src="${mode.icon}" class="w-4 h-4 object-contain" alt="${mode.name}">
+                    <div class="flex flex-col items-center gap-1.5 flex-shrink-0 group relative">
+                        <div class="w-10 h-10 rounded-full ${tClass.circle} flex items-center justify-center shadow-sm">
+                            <img src="${mode.icon}" class="w-5 h-5 object-contain" alt="${mode.name}">
                         </div>
-                        <span class="${tClass.label} text-[10px] font-black px-1.5 py-0.5 rounded leading-none tracking-tight shadow-sm">${tierVal}</span>
+                        <span class="${tClass.label} text-xs font-black px-2 py-0.5 rounded leading-none tracking-tight shadow-sm">${tierVal}</span>
                     </div>
                 `;
             }).join('');
@@ -704,7 +741,7 @@
         function renderTierlistMaker() {
             const board = document.getElementById('tierlistBoard');
             const pool = document.getElementById('unassignedPool');
-            const currentMode = activeTab === 'overall' ? 'sword' : activeTab;
+            const currentMode = activeTab === 'overall' ? 'Sword' : activeTab;
 
             board.innerHTML = TIER_RANKS.map(rank => {
                 let headerColor = 'bg-slate-800/80 text-pink-300';
@@ -752,23 +789,31 @@
         function allowDrop(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
         function clearDragHover(e) { e.currentTarget.classList.remove('drag-over'); }
 
-        function handleDrop(e, targetRect, targetRank) {
-            // handled drop
-        }
-
-        function handleDrop(e, targetRank) {
+        async function handleDrop(e, targetRank) {
             e.preventDefault();
             e.currentTarget.classList.remove('drag-over');
             if (!draggedUsername) return;
 
-            const mode = activeTab === 'overall' ? 'sword' : activeTab;
-            const playerIndex = players.findIndex(p => p.username === draggedUsername);
+            const mode = activeTab === 'overall' ? 'Sword' : activeTab;
+            const player = players.find(p => p.username === draggedUsername);
             
-            if (playerIndex !== -1) {
-                if (!players[playerIndex].tiers) players[playerIndex].tiers = {};
-                players[playerIndex].tiers[mode] = targetRank;
-                players[playerIndex].points = calculatePlayerPoints(players[playerIndex].tiers);
-                saveAndRefresh();
+            if (player) {
+                if (!player.tiers) player.tiers = {};
+                player.tiers[mode] = targetRank;
+                player.points = calculatePlayerPoints(player.tiers);
+                
+                try {
+                    await databases.updateDocument(
+                        DATABASE_ID,
+                        COLLECTION_ID,
+                        player.id,
+                        { tiers: JSON.stringify(player.tiers) }
+                    );
+                } catch (err) {
+                    console.error("Lỗi cập nhật Appwrite:", err);
+                }
+
+                renderLeaderboard();
             }
         }
 
@@ -779,17 +824,16 @@
             });
         }
 
-        function deletePlayer(username) {
+        async function deletePlayer(docId, username) {
             if (confirm(`Bạn có chắc muốn xóa ${username}?`)) {
-                players = players.filter(p => p.username !== username);
-                saveAndRefresh();
+                try {
+                    await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, docId);
+                    players = players.filter(p => p.username !== username);
+                    renderLeaderboard();
+                } catch (err) {
+                    alert("Không thể xóa người chơi: " + err.message);
+                }
             }
-        }
-
-        function saveAndRefresh() {
-            localStorage.setItem('dennis_players', JSON.stringify(players));
-            if (currentView === 'leaderboard') renderLeaderboard();
-            else renderTierlistMaker();
         }
 
         function exportTierlistImage() {
