@@ -16,7 +16,6 @@
         }
 
         try {
-            // Gọi API công khai của Appwrite (Yêu cầu collection players đã bật quyền Read cho 'Any')
             const response = await fetch(`https://sgp.cloud.appwrite.io/v1/databases/6abe0bb6000caab818b9/collections/6abe0d8300108a42b831/documents`, {
                 headers: {
                     'X-Appwrite-Project': '6abe0b1f00000e883399',
@@ -27,7 +26,6 @@
             const data = await response.json();
             
             if (data.documents) {
-                // Map dữ liệu từ Appwrite chuẩn hóa vào leaderboardData với cơ chế xử lý tiers linh hoạt
                 leaderboardData = data.documents.map(doc => {
                     let parsedTiers = { Sword: doc.tier || "Unranked" };
                     
@@ -40,24 +38,24 @@
                                 parsedTiers = JSON.parse(raw);
                             } catch (e) {
                                 parsedTiers = {};
-                                // Hỗ trợ gõ nhanh phân tách bằng dấu phẩy, ví dụ: "Sword: HT1, Nethop: HT2, SMP: LT1"
                                 const entries = raw.split(',');
                                 entries.forEach(entry => {
                                     if (entry.includes(':')) {
                                         const parts = entry.split(':');
                                         const modeKey = parts[0].trim();
                                         const tierVal = parts[1].trim();
-                                        parsedTiers[modeKey] = tierVal;
+                                        // Chuẩn hóa key viết hoa chữ cái đầu cho khớp với giao diện
+                                        const formattedKey = modeKey.charAt(0).toUpperCase() + modeKey.slice(1).toLowerCase();
+                                        parsedTiers[formattedKey] = tierVal;
                                     }
                                 });
                                 
-                                // Nếu chỉ gõ một chuỗi đơn thuần (ví dụ: "HT1"), tự động gán cho tất cả các chế độ
                                 if (Object.keys(parsedTiers).length === 0) {
                                     parsedTiers = { 
                                         Sword: raw, 
                                         Nethop: raw, 
                                         SMP: raw, 
-                                        UHC: raw, 
+                                        Uhc: raw, 
                                         Axe: raw, 
                                         Vanilla: raw, 
                                         Mace: raw 
@@ -94,10 +92,17 @@
         const container = document.getElementById('leaderboard-body');
         if (!container) return;
 
-        // Lọc theo từ khóa tìm kiếm
-        let filtered = leaderboardData.filter(player => 
-            player.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        // Lọc theo chế độ chơi nếu không phải 'all'
+        let filtered = leaderboardData.filter(player => {
+            const matchesSearch = player.name.toLowerCase().includes(searchQuery.toLowerCase());
+            if (currentMode === 'all') return matchesSearch;
+            
+            // Tìm kiếm không phân biệt hoa thường cho các key trong tiers
+            const modeKeys = Object.keys(player.tiers).map(k => k.toLowerCase());
+            const hasMode = modeKeys.includes(currentMode.toLowerCase());
+            
+            return matchesSearch && hasMode;
+        });
 
         if (filtered.length === 0) {
             container.innerHTML = `
@@ -109,12 +114,18 @@
             return;
         }
 
-        container.innerHTML = filtered.map((player, index) => {
-            const tierDisplay = currentMode === 'all' 
-                ? (player.tiers.Sword || 'Unranked') 
-                : (player.tiers[currentMode] || 'Unranked');
+        const modesList = ['Sword', 'Nethop', 'SMP', 'Uhc', 'Axe', 'Vanilla', 'Mace'];
 
+        container.innerHTML = filtered.map((player, index) => {
             const avatarUrl = `https://vzge.me/avatars/100/${player.skin}`;
+
+            // Tạo chuỗi hiển thị các tier nhỏ theo từng icon chế độ
+            let tiersHtml = modesList.map(m => {
+                // Tìm kiếm key trong player.tiers không phân biệt hoa thường
+                const foundKey = Object.keys(player.tiers).find(k => k.toLowerCase() === m.toLowerCase());
+                const tVal = foundKey ? player.tiers[foundKey] : '-';
+                return `<div class="w-8 text-center text-[11px] font-bold text-gray-300" title="${m}: ${tVal}">${tVal}</div>`;
+            }).join('');
 
             return `
                 <div class="grid grid-cols-12 px-8 py-4 items-center hover:bg-gray-800/30 transition-colors">
@@ -126,8 +137,8 @@
                         <span class="font-bold text-white text-sm tracking-wide">${player.name}</span>
                     </div>
                     <div class="col-span-2 text-center font-extrabold text-pink-400 text-sm">${player.points} pts</div>
-                    <div class="col-span-4 flex items-center justify-end gap-2 pr-4">
-                        <span class="text-xs bg-pink-500/10 border border-pink-500/20 px-3 py-1 rounded-xl text-pink-300 font-bold shadow-sm">${tierDisplay}</span>
+                    <div class="col-span-4 flex items-center justify-end gap-3 pr-4 overflow-x-auto">
+                        ${tiersHtml}
                     </div>
                 </div>
             `;
@@ -161,7 +172,6 @@
             });
         }
 
-        // Tự động tải dữ liệu từ Appwrite ngay khi load trang
         fetchLeaderboardFromAppwrite();
         filterMode('all');
     });
