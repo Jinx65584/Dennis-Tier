@@ -104,7 +104,7 @@
         .tier-circle-tier5 { border: 2.5px solid rgba(209, 213, 219, 0.45); background-color: rgba(249, 250, 251, 0.08); }
         .tier-label-tier5 { background-color: rgba(107, 114, 128, 0.3); color: #d1d5db; }
 
-        .tier-circle-empty { border: 2.5px dashed rgba(148, 163, 184, 0.85); background-color: rgba(241, 245, 249, 0.05); opacity: 1; }
+        .tier-circle-empty { border: 2.5px dashed rgba(71, 85, 105, 0.95); background-color: rgba(15, 23, 42, 0.75); opacity: 1; }
         .tier-label-empty { background-color: rgba(30, 41, 59, 0.6); color: #64748b; opacity: 0.7; }
 
         /* HIỆU ỨNG HOVER HÀNG NGƯỜI CHƠI */
@@ -596,7 +596,7 @@
                             return `
                                 <div class="flex flex-col items-center gap-1.5 flex-shrink-0 min-w-[48px] opacity-85">
                                     <div class="w-10 h-10 rounded-full tier-circle-empty flex items-center justify-center">
-                                        <img src="${mode.icon}" class="w-5 h-5 object-contain opacity-55 grayscale brightness-85" alt="${mode.name}">
+                                        <img src="${mode.icon}" class="w-5 h-5 object-contain opacity-65" alt="${mode.name}">
                                     </div>
                                     <span class="tier-label-empty text-xs font-black px-2 py-0.5 rounded leading-none">-</span>
                                 </div>
@@ -709,7 +709,7 @@
                     return `
                         <div class="flex flex-col items-center gap-1.5 flex-shrink-0 opacity-85">
                             <div class="w-10 h-10 rounded-full tier-circle-empty flex items-center justify-center shadow-sm">
-                                <img src="${mode.icon}" class="w-5 h-5 object-contain opacity-55 grayscale brightness-85" alt="${mode.name}">
+                                <img src="${mode.icon}" class="w-5 h-5 object-contain opacity-65" alt="${mode.name}">
                             </div>
                             <span class="tier-label-empty text-xs font-black px-2 py-0.5 rounded leading-none">-</span>
                         </div>
