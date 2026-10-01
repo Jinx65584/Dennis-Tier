@@ -1,368 +1,19 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dennis Tier - Bảng Xếp Hạng & Tier List Minecraft PvP</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- html2canvas -->
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <!-- Supabase JS Client CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Google Font: Plus Jakarta Sans -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Appwrite Web SDK CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
 
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    colors: {
-                        pinkAccent: '#f472b6',
-                        pinkDark: '#db2777',
-                        pinkLight: '#fbcfe8',
-                        darkBg: '#0f172a',
-                        cardDark: '#1e293b',
-                        borderDark: '#334155',
-                        discordBlurple: '#5865F2',
-                        discordHover: '#4752C4'
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(244, 114, 182, 0.05) 0%, rgba(15, 23, 42, 1) 60%),
-                radial-gradient(circle at 90% 80%, rgba(51, 65, 85, 0.4) 0%, transparent 40%);
-            background-attachment: fixed;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .horizontal-scroll-container {
-            overflow-x: auto;
-            overflow-y: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: #475569 #0f172a;
-        }
-        .horizontal-scroll-container::-webkit-scrollbar {
-            height: 5px;
-        }
-        .horizontal-scroll-container::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.5);
-            border-radius: 9999px;
-        }
-        .horizontal-scroll-container::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 9999px;
-        }
-        .horizontal-scroll-container::-webkit-scrollbar-thumb:hover {
-            background: #f472b6;
-        }
-
-        /* TIER COLORS */
-        .tier-circle-tier1 { border: 2.5px solid rgba(250, 204, 21, 0.85); background-color: rgba(254, 243, 199, 0.08); }
-        .tier-label-tier1 { background-color: rgba(161, 98, 7, 0.3); color: #fde047; }
-
-        .tier-circle-tier2 { border: 2.5px solid rgba(148, 163, 184, 0.45); background-color: rgba(241, 245, 249, 0.08); }
-        .tier-label-tier2 { background-color: rgba(100, 116, 139, 0.3); color: #cbd5e1; }
-
-        .tier-circle-tier3 { border: 2.5px solid rgba(212, 143, 84, 0.85); background-color: rgba(245, 222, 179, 0.08); }
-        .tier-label-tier3 { background-color: rgba(146, 84, 39, 0.35); color: #f7b281; }
-
-        .tier-circle-tier4 { border: 2.5px solid #4ade80; background-color: rgba(240, 253, 244, 0.08); }
-        .tier-label-tier4 { background-color: rgba(22, 101, 52, 0.3); color: #86efac; }
-
-        .tier-circle-tier5 { border: 2.5px solid rgba(209, 213, 219, 0.45); background-color: rgba(249, 250, 251, 0.08); }
-        .tier-label-tier5 { background-color: rgba(107, 114, 128, 0.3); color: #d1d5db; }
-
-        .tier-circle-empty { border: 2.5px dashed rgba(100, 116, 139, 0.3); background-color: transparent; opacity: 0.5; }
-        .tier-label-empty { background-color: rgba(30, 41, 59, 0.6); color: #64748b; opacity: 0.7; }
-
-        .player-row {
-            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
-                        background-color 0.25s ease, 
-                        box-shadow 0.25s ease;
-            border: none;
-            background-color: rgba(30, 41, 59, 0.4);
-            border-radius: 0.85rem;
-            margin-bottom: 12px;
-            cursor: pointer;
-            -webkit-font-smoothing: antialiased;
-            backface-visibility: hidden;
-            transform: translateZ(0);
-        }
-        .player-row:hover {
-            background-color: #26354a !important;
-            transform: scale(1.02) translateZ(0);
-            box-shadow: 0 0 28px rgba(244, 114, 182, 0.4), inset 0 0 14px rgba(244, 114, 182, 0.1);
-            z-index: 20;
-            position: relative;
-        }
-
-        #modeTabsWrapper {
-            overflow: visible !important;
-            padding-top: 4px;
-            position: relative;
-            gap: 2px;
-        }
-
-        #activeIndicator {
-            position: absolute;
-            bottom: 0px;
-            left: 0;
-            height: 3px;
-            background-color: #f472b6;
-            box-shadow: 0 0 8px #f472b6;
-            border-radius: 2px;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 35;
-            pointer-events: none;
-            will-change: transform, width;
-        }
-
-        .mode-btn {
-            background-color: #162032;
-            border: none;
-            border-top-left-radius: 0.75rem;
-            border-top-right-radius: 0.75rem;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            z-index: 10;
-        }
-
-        .mode-btn:hover {
-            background-color: #1e293b;
-            z-index: 40;
-        }
-
-        .mode-btn:hover img {
-            transform: scale(1.1);
-            filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.7));
-            transition: transform 0.2s ease;
-        }
-
-        .mode-btn:hover span {
-            color: #f472b6;
-        }
-
-        .mode-btn.active {
-            background-color: #1e293b;
-            border: none;
-            z-index: 30;
-            box-shadow: none;
-        }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-pink-500 selection:text-white">
-
-    <!-- Navigation Bar -->
-    <nav class="w-full border-b border-slate-800 bg-[#0f172a]/85 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-        <div class="max-w-[1180px] mx-auto px-4 sm:px-6">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-8">
-                    <a href="#" class="flex items-center space-x-3 group">
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 via-pink-500 to-rose-500 flex items-center justify-center font-black text-xl text-white shadow-md shadow-pink-500/20 group-hover:scale-105 transition-transform duration-200">
-                            D
-                        </div>
-                        <div>
-                            <span class="font-black text-lg tracking-wider bg-gradient-to-r from-white via-pink-300 to-rose-400 bg-clip-text text-transparent">DENNIS TIER</span>
-                            <span class="block text-[10px] tracking-widest text-pink-400 font-bold uppercase">PvP Leaderboard</span>
-                        </div>
-                    </a>
-                    
-                    <div class="hidden md:flex items-center space-x-8 text-sm font-bold">
-                        <button onclick="switchMainView('leaderboard')" id="navBtnLeaderboard" class="text-pink-400 font-extrabold flex items-center gap-2 border-b-2 border-pink-400 pb-1 transition-all duration-300">
-                            <i class="fa-solid fa-list-ol text-xs text-pink-400"></i> Bảng Xếp Hạng
-                        </button>
-                        <a href="https://discord.gg" target="_blank" class="text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1">
-                            <i class="fa-brands fa-discord text-base"></i> Discord
-                        </a>
-                    </div>
-                </div>
-
-                <div class="flex items-center space-x-4">
-                    <div class="relative w-40 sm:w-52">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input id="searchInput" type="text" placeholder="Tìm người chơi..." 
-                            class="w-full bg-slate-900/80 text-xs text-white pl-10 pr-3.5 py-2 rounded-xl border border-slate-700 focus:outline-none focus:border-pink-400 shadow-inner transition-all placeholder:text-slate-500">
-                    </div>
-
-                    <a href="#" onclick="loginWithDiscord(event)" class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 transition-all shadow-md shadow-discordBlurple/20 flex-shrink-0">
-                        <i class="fa-brands fa-discord text-sm"></i>
-                        <span class="hidden sm:inline">Đăng nhập với Discord</span>
-                        <span class="sm:hidden">Discord</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content Container -->
-    <main class="flex-1 max-w-[1180px] w-full mx-auto px-4 sm:px-6 py-6 relative z-10">
+        // CẤU HÌNH APPWRITE
+        const { Client, Databases, Query } = Appwrite;
         
-        <div class="mb-14 flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-                <div class="flex items-center gap-2 text-pink-400 font-bold text-xs tracking-widest uppercase mb-1">
-                    <span class="w-2 h-2 rounded-full bg-pink-400 animate-ping"></span>
-                    Hệ thống xếp hạng PvP mùa giải
-                </div>
-                <h1 id="viewTitle" class="text-2xl sm:text-3xl font-black text-white tracking-tight">Bảng Xếp Hạng</h1>
-                <p id="viewSubtitle" class="text-slate-400 text-xs mt-1">Khám phá thứ hạng và điểm số của các chiến binh hàng đầu trong từng chế độ.</p>
-            </div>
-        </div>
+        const client = new Client()
+            .setEndpoint('https://cloud.appwrite.io/v1') // Hoặc endpoint Appwrite của bạn
+            .setProject('YOUR_PROJECT_ID');            // ⚠️️ Thay bằng Project ID của bạn
 
-        <!-- Mode Tabs & Khung Bảng Giao Diện -->
-        <div class="w-full">
-            <!-- Tabs Bar -->
-            <div class="w-full overflow-x-auto overflow-y-visible no-scrollbar">
-                <div id="modeTabsWrapper" class="flex items-center w-full min-w-[850px] relative">
-                    <div id="activeIndicator"></div>
-                </div>
-            </div>
-
-            <!-- VIEW 1: Leaderboard Container -->
-            <div id="leaderboardView" class="bg-[#1e293b] rounded-b-xl rounded-tr-none rounded-tl-none p-4 sm:p-5 shadow-xl relative z-10">
-                
-                <!-- CONTAINER CHO CHẾ ĐỘ OVERALL -->
-                <div id="overallLeaderboardContent">
-                    <div class="flex items-center text-sm font-black text-slate-300 tracking-wider uppercase px-4 py-3 bg-[#162032]/70 rounded-lg mb-3">
-                        <div class="w-12 text-center flex-shrink-0">#</div>
-                        <div class="w-[38%] sm:w-[32%] flex-shrink-0">PLAYER</div>
-                        <div class="w-36 sm:w-40 text-left flex-shrink-0">POINTS</div>
-                        <div class="flex-1">TIERS</div>
-                        <div class="w-16 text-center flex-shrink-0"></div>
-                    </div>
-
-                    <div id="leaderboardBody" class="flex flex-col text-sm font-semibold">
-                        <!-- Render dữ liệu từ Supabase trực tiếp -->
-                    </div>
-                </div>
-
-                <!-- CONTAINER CHO CÁC CHẾ ĐỘ RIÊNG -->
-                <div id="modeTierColumnsContent" class="hidden">
-                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-5" id="tierColumnsGrid">
-                        <!-- Render dữ liệu từ Supabase trực tiếp -->
-                    </div>
-                </div>
-
-                <div id="emptyState" class="hidden py-16 text-center">
-                    <i class="fa-solid fa-ghost text-4xl text-slate-600 mb-3 block"></i>
-                    <p class="text-slate-300 font-bold text-sm">Không tìm thấy người chơi nào</p>
-                    <p class="text-slate-500 text-xs mt-1">Hãy thử tìm kiếm tên khác hoặc kiểm tra kết nối Supabase.</p>
-                </div>
-            </div>
-
-            <!-- VIEW 2: Interactive Drag & Drop Tier List Maker -->
-            <div id="tierlistView" class="hidden space-y-4 pt-3">
-                <div class="flex items-center justify-between bg-slate-900/80 p-4 rounded-xl shadow-sm">
-                    <span class="text-xs font-semibold text-slate-300">Kéo thả avatar nhân vật vào các bậc Tier tương ứng</span>
-                    <button onclick="exportTierlistImage()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold px-4 py-2 rounded-lg flex items-center gap-1.5 transition-colors shadow-md shadow-emerald-600/20">
-                        <i class="fa-solid fa-download"></i> Xuất Ảnh
-                    </button>
-                </div>
-
-                <div id="tierlistBoard" class="space-y-3 bg-slate-900/80 p-5 rounded-xl shadow-sm backdrop-blur-md">
-                    <!-- Tier rows generated dynamically -->
-                </div>
-
-                <div class="bg-slate-900/80 p-5 rounded-xl shadow-sm">
-                    <h3 class="text-xs font-extrabold text-pink-400 uppercase tracking-wider mb-3">Kho Người Chơi Chưa Phân Tier</h3>
-                    <div id="unassignedPool" class="flex flex-wrap gap-3 min-h-[70px] p-4 bg-slate-800/40 rounded-lg">
-                        <!-- Cards rendered dynamically -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="mt-auto border-t border-slate-800 bg-[#0f172a]/80 py-6 text-center text-xs text-slate-500 relative z-10">
-        <div class="max-w-[1180px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p>© 2026 DENNIS TIER - Minecraft PvP Ranking System. All rights reserved.</p>
-            <div class="flex items-center space-x-5 font-semibold">
-                <a href="#" class="hover:text-pink-400 transition-colors">Điều khoản</a>
-                <a href="#" class="hover:text-pink-400 transition-colors">Bảo mật</a>
-                <a href="https://discord.gg" target="_blank" class="hover:text-pink-400 transition-colors">Discord Community</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- PLAYER PROFILE MODAL -->
-    <div id="playerModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-[#162032] w-full max-w-[490px] rounded-2xl shadow-2xl p-6 sm:p-7 relative flex flex-col items-center text-center">
-            
-            <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
-                <i class="fa-solid fa-xmark text-sm"></i>
-            </button>
-
-            <div class="relative mt-2 mb-4">
-                <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-rose-500 p-1 flex items-center justify-center shadow-lg shadow-pink-500/20">
-                    <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center overflow-hidden">
-                        <img id="modalSkinImg" src="" alt="Skin" class="w-24 h-24 object-contain drop-shadow-md mt-2">
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-center gap-2 mb-5">
-                <span class="text-amber-400 text-lg"><i class="fa-solid fa-trophy"></i></span>
-                <h2 id="modalUsername" class="text-2xl font-black bg-gradient-to-r from-amber-200 via-pink-300 to-rose-400 bg-clip-text text-transparent">Player</h2>
-                <button onclick="copyProfileLink()" class="text-slate-400 hover:text-white text-xs ml-1" title="Sao chép liên kết"><i class="fa-regular fa-copy"></i></button>
-            </div>
-
-            <div class="w-full bg-[#1e293b] border border-slate-700/50 rounded-xl py-4 px-4 mb-5 shadow-inner">
-                <div id="modalRankNum" class="text-2xl font-black text-white mb-0.5">#1</div>
-                <div class="flex items-center justify-center gap-1.5 text-amber-400 text-xs font-black tracking-wider">
-                    <i class="fa-solid fa-trophy"></i> OVERALL <span id="modalPoints" class="text-slate-300 font-bold">(0 points)</span>
-                </div>
-            </div>
-
-            <div class="w-full text-left">
-                <h3 class="text-xs font-extrabold text-slate-400 tracking-widest uppercase mb-2 text-center">TIERS</h3>
-                <div id="modalTiersContainer" class="bg-[#111827]/70 border border-slate-800 rounded-xl p-4 grid grid-cols-4 sm:grid-cols-7 gap-2.5 justify-items-center">
-                    <!-- Render qua JS -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // CẤU HÌNH SUPABASE AN TOÀN TRÊN CLIENT
-        const SUPABASE_URL = 'https://hnrpkzjfywuqbjstddyi.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhucnBremp5Znd1cWJqc3RkZHlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1OTQxMjIsImV4cCI6MjEwNjE3MDEyMn0.YF8CzDY7_hhwjoA2REuPKsuJJmmPHO_RpuClVIfwCkM'; 
-        // ⚠️ Thay đoạn chuỗi trên bằng Anon Key thật của dự án Supabase của bạn (Lấy trong Project Settings -> API).
+        const databases = new Databases(client);
         
-        // Khởi tạo Supabase Client
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ⚠️ Thay bằng Database ID và Collection ID của bạn trên Appwrite
+        const DATABASE_ID = 'YOUR_DATABASE_ID';
+        const COLLECTION_ID = 'players'; 
 
         const TIER_POINTS = {
             'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10,
@@ -372,8 +23,10 @@
         function calculatePlayerPoints(tiersObj) {
             if (!tiersObj) return 0;
             let total = 0;
-            for (const modeId in tiersObj) {
-                const tierVal = tiersObj[modeId];
+            // Nếu tiersObj lưu dưới dạng JSON string từ Appwrite, cần parse ra object
+            let tiers = typeof tiersObj === 'string' ? JSON.parse(tiersObj) : tiersObj;
+            for (const modeId in tiers) {
+                const tierVal = tiers[modeId];
                 if (tierVal && TIER_POINTS[tierVal]) total += TIER_POINTS[tierVal];
             }
             return total;
@@ -399,35 +52,41 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             renderTabs();
-            fetchTiersFromSupabase();
+            fetchTiersFromAppwrite();
             setupSearchListener();
             setTimeout(updateIndicatorPosition, 50);
         });
 
         window.addEventListener('resize', () => updateIndicatorPosition());
 
-        // HÀM LẤY DỮ LIỆU TRỰC TIẾP TỪ BẢNG 'tiers' TRÊN SUPABASE
-        async function fetchTiersFromSupabase() {
+        // HÀM LẤY DỮ LIỆU TỪ APPWRITE
+        async function fetchTiersFromAppwrite() {
             try {
-                const { data, error } = await supabaseClient.from('tiers').select('*');
-                
-                if (error) {
-                    console.error('Lỗi khi truy vấn Supabase:', error);
-                    return;
-                }
+                const response = await databases.listDocuments(
+                    DATABASE_ID,
+                    COLLECTION_ID,
+                    [Query.limit(100)] // Lấy tối đa 100 người chơi, có thể chỉnh lại
+                );
 
-                if (data) {
-                    players = data.map(row => ({
-                        username: row.username,
-                        tiers: row.tiers || {},
-                        points: calculatePlayerPoints(row.tiers)
-                    }));
+                if (response && response.documents) {
+                    players = response.documents.map(doc => {
+                        let parsedTiers = doc.tiers;
+                        if (typeof parsedTiers === 'string') {
+                            try { parsedTiers = JSON.parse(parsedTiers); } catch(e) { parsedTiers = {}; }
+                        }
+                        return {
+                            id: doc.$id,
+                            username: doc.username,
+                            tiers: parsedTiers || {},
+                            points: calculatePlayerPoints(parsedTiers)
+                        };
+                    });
 
                     players.sort((a, b) => b.points - a.points);
                     renderLeaderboard();
                 }
             } catch (err) {
-                console.error('Lỗi kết nối:', err);
+                console.error('Lỗi kết nối Appwrite:', err);
             }
         }
 
@@ -614,7 +273,7 @@
 
                             <div class="w-16 text-center flex-shrink-0">
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onclick="event.stopPropagation(); deletePlayer('${player.username}')" class="text-slate-400 hover:text-rose-400 p-1.5 transition-colors text-sm ml-1" title="Xóa player"><i class="fa-solid fa-trash"></i></button>
+                                    <button onclick="event.stopPropagation(); deletePlayer('${player.id}', '${player.username}')" class="text-slate-400 hover:text-rose-400 p-1.5 transition-colors text-sm ml-1" title="Xóa player"><i class="fa-solid fa-trash"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -770,18 +429,31 @@
         function allowDrop(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
         function clearDragHover(e) { e.currentTarget.classList.remove('drag-over'); }
 
-        function handleDrop(e, targetRank) {
+        async function handleDrop(e, targetRank) {
             e.preventDefault();
             e.currentTarget.classList.remove('drag-over');
             if (!draggedUsername) return;
 
             const mode = activeTab === 'overall' ? 'Sword' : activeTab;
-            const playerIndex = players.findIndex(p => p.username === draggedUsername);
+            const player = players.find(p => p.username === draggedUsername);
             
-            if (playerIndex !== -1) {
-                if (!players[playerIndex].tiers) players[playerIndex].tiers = {};
-                players[playerIndex].tiers[mode] = targetRank;
-                players[playerIndex].points = calculatePlayerPoints(players[playerIndex].tiers);
+            if (player) {
+                if (!player.tiers) player.tiers = {};
+                player.tiers[mode] = targetRank;
+                player.points = calculatePlayerPoints(player.tiers);
+                
+                // Đồng thời cập nhật lên Appwrite Database nếu cần
+                try {
+                    await databases.updateDocument(
+                        DATABASE_ID,
+                        COLLECTION_ID,
+                        player.id,
+                        { tiers: JSON.stringify(player.tiers) }
+                    );
+                } catch (err) {
+                    console.error("Lỗi cập nhật Appwrite:", err);
+                }
+
                 renderLeaderboard();
             }
         }
@@ -793,10 +465,15 @@
             });
         }
 
-        function deletePlayer(username) {
+        async function deletePlayer(docId, username) {
             if (confirm(`Bạn có chắc muốn xóa ${username}?`)) {
-                players = players.filter(p => p.username !== username);
-                renderLeaderboard();
+                try {
+                    await databases.deleteDocument(DATABASE_ID, COLLECTION_ID, docId);
+                    players = players.filter(p => p.username !== username);
+                    renderLeaderboard();
+                } catch (err) {
+                    alert("Không thể xóa người chơi: " + err.message);
+                }
             }
         }
 
@@ -810,5 +487,3 @@
             });
         }
     </script>
-</body>
-</html>
