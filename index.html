@@ -113,9 +113,9 @@
                         background-color 0.25s ease, 
                         box-shadow 0.25s ease;
             border: none;
-            background-color: rgba(30, 41, 59, 0.4);
+            background-color: rgba(30, 41, 59, 0.5);
             border-radius: 0.85rem;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             cursor: pointer;
             -webkit-font-smoothing: antialiased;
             backface-visibility: hidden;
@@ -124,9 +124,23 @@
         .player-row:hover {
             background-color: #26354a !important;
             transform: scale(1.02) translateZ(0);
-            box-shadow: 0 0 28px rgba(244, 114, 182, 0.4), inset 0 0 14px rgba(244, 114, 182, 0.1);
+            box-shadow: 0 0 24px rgba(244, 114, 182, 0.35), inset 0 0 12px rgba(244, 114, 182, 0.1);
             z-index: 20;
             position: relative;
+        }
+
+        /* THẺ PLAYER TRONG CỘT TIER: ĐỒNG BỘ VỚI HÀNG OVERALL (XÁM TRẮNG THANH LỊCH) */
+        .tier-player-card {
+            background-color: #1e293b;
+            border: 1px solid rgba(100, 116, 139, 0.35);
+            border-radius: 0.85rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tier-player-card:hover {
+            background-color: #26354a;
+            border-color: rgba(244, 114, 182, 0.5);
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(244, 114, 182, 0.3);
         }
 
         #modeTabsWrapper {
@@ -191,14 +205,14 @@
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-8">
                     <a href="#" class="flex items-center space-x-3 group">
-                        <img src="https://i.imgur.com/YOUR_LOGO_URL.png" alt="DENNIS TIER" class="h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-200 drop-shadow-[0_2px_10px_rgba(244,114,182,0.4)]" onerror="this.onerror=null; this.src='https://api.iconify.design/twemoji:sword.svg';">
+                        <img src="https://cdn.discordapp.com/attachments/1549667894571307078/1555601551110967296/minecraft_title.png?backend=b2&ex=6ac11e57&is=6abfccd7&hm=1599aa31a40ab6f3f6ef2cededa39c971e95bb923566b22b67ee68c8de43b576&" alt="DENNIS TIER" class="h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-200 drop-shadow-[0_2px_10px_rgba(244,114,182,0.4)]" onerror="this.onerror=null; this.src='https://api.iconify.design/twemoji:sword.svg';">
                     </a>
                     
                     <div class="hidden md:flex items-center space-x-8 text-sm font-bold">
                         <button onclick="switchMainView('leaderboard')" id="navBtnLeaderboard" class="text-pink-400 font-extrabold flex items-center gap-2 border-b-2 border-pink-400 pb-1 transition-all duration-300">
                             <i class="fa-solid fa-list-ol text-xs text-pink-400"></i> Bảng Xếp Hạng
                         </button>
-                        <a href="https://discord.gg" target="_blank" class="text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1">
+                        <a href="https://discord.gg/TCyJ39XSg" target="_blank" class="text-slate-400 hover:text-pink-400 transition-colors flex items-center gap-2 pb-1">
                             <i class="fa-brands fa-discord text-base"></i> Discord
                         </a>
                     </div>
@@ -245,10 +259,10 @@
             </div>
 
             <!-- VIEW 1: Leaderboard Container -->
-            <div id="leaderboardView" class="bg-[#1e293b] rounded-b-xl rounded-tr-none rounded-tl-none p-4 sm:p-5 shadow-xl relative z-10">
+            <div id="leaderboardView" class="bg-[#1e293b] rounded-b-xl rounded-tr-none rounded-tl-none p-0 shadow-xl relative z-10 overflow-hidden">
                 
                 <!-- CONTAINER CHO CHẾ ĐỘ OVERALL -->
-                <div id="overallLeaderboardContent">
+                <div id="overallLeaderboardContent" class="p-4 sm:p-5">
                     <div class="flex items-center text-sm font-black text-slate-300 tracking-wider uppercase px-4 py-3 bg-[#162032]/70 rounded-lg mb-3">
                         <div class="w-12 text-center flex-shrink-0">#</div>
                         <div class="w-[38%] sm:w-[32%] flex-shrink-0">PLAYER</div>
@@ -262,10 +276,11 @@
                     </div>
                 </div>
 
-                <!-- CONTAINER CHO CÁC CHẾ ĐỘ RIÊNG (CĂN TRÊN - TOP) -->
-                <div id="modeTierColumnsContent" class="hidden">
-                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-5" id="tierColumnsGrid">
-                        <!-- Được render qua JavaScript -->
+                <!-- CONTAINER CHO CÁC CHẾ ĐỘ RIÊNG: Giao diện 5 cột Tier liền mạch chuẩn ảnh mẫu -->
+                <div id="modeTierColumnsContent" class="hidden p-4 sm:p-5">
+                    <!-- Hàng chứa 5 Cột Tier liền mạch (Header liền thân card) -->
+                    <div id="tierColumnsGrid" class="grid grid-cols-1 sm:grid-cols-5 gap-3.5 min-h-[420px]">
+                        <!-- Render qua JS -->
                     </div>
                 </div>
 
@@ -609,11 +624,11 @@
                     }).join('');
 
                     return `
-                        <div class="player-row flex items-center px-4 py-3.5" onclick="openPlayerModal('${player.username}')">
+                        <div class="player-row flex flex-row items-center px-4 py-3.5" onclick="openPlayerModal('${player.username}')">
                             <div class="w-12 text-center flex-shrink-0">${rankDisplay}</div>
                             <div class="w-[38%] sm:w-[32%] flex-shrink-0">
-                                <div class="flex items-center space-x-3.5">
-                                    <img src="${skinUrl}" alt="${player.username}" onerror="this.src='https://vzge.me/bust/220/Steve'" class="w-20 h-20 object-contain flex-shrink-0 drop-shadow-lg -my-2">
+                                <div class="flex flex-row items-center space-x-3.5">
+                                    <img src="${skinUrl}" alt="${player.username}" onerror="this.src='https://vzge.me/bust/220/Steve'" class="w-16 h-16 object-contain flex-shrink-0 drop-shadow-lg">
                                     <span class="font-extrabold text-white text-base group-hover:text-pink-400 transition-colors truncate">${player.username}</span>
                                 </div>
                             </div>
@@ -640,62 +655,64 @@
                 modeColumnsContent.classList.remove('hidden');
                 emptyState.classList.add('hidden');
 
-                const tierColsGrid = document.getElementById('tierColumnsGrid');
+                const tierColumnsGrid = document.getElementById('tierColumnsGrid');
+                
                 const tiersList = ['Tier 1', 'Tier 2', 'Tier 3', 'Tier 4', 'Tier 5'];
                 const tierKeys = { 'Tier 1': ['HT1', 'LT1'], 'Tier 2': ['HT2', 'LT2'], 'Tier 3': ['HT3', 'LT3'], 'Tier 4': ['HT4', 'LT4'], 'Tier 5': ['HT5', 'LT5'] };
                 
-                // MỖI TIER 1 LINK ẢNH RIÊNG BIỆT (Mày có thể thay link ở đây)
-                const tierCustomIcons = {
-                    'Tier 1': 'https://i.imgur.com/TIER_1_URL.png',
-                    'Tier 2': 'https://i.imgur.com/TIER_2_URL.png',
-                    'Tier 3': 'https://i.imgur.com/TIER_3_URL.png',
-                    'Tier 4': 'https://i.imgur.com/TIER_4_URL.png',
-                    'Tier 5': 'https://i.imgur.com/TIER_5_URL.png'
+                // Chỉ Tier 1, 2, 3 mới có màu nền/gradient nổi bật, còn Tier 4, 5 để đơn giản (không màu rực rỡ)
+                const headerStyles = {
+                    'Tier 1': 'bg-gradient-to-r from-amber-700/90 to-amber-600/90 text-amber-200 border-b border-amber-500/30',
+                    'Tier 2': 'bg-gradient-to-r from-slate-700/90 to-slate-600/90 text-slate-200 border-b border-slate-500/30',
+                    'Tier 3': 'bg-gradient-to-r from-orange-950/90 to-amber-900/90 text-orange-200 border-b border-orange-600/30',
+                    'Tier 4': 'bg-[#162032] text-slate-300 border-b border-slate-700/50',
+                    'Tier 5': 'bg-[#162032] text-slate-400 border-b border-slate-700/50'
                 };
 
-                const headerColors = {
-                    'Tier 1': 'bg-[#92400e]/80 text-amber-300 border-amber-600/50 py-4 text-base',
-                    'Tier 2': 'bg-[#475569]/80 text-slate-200 border-slate-500/50 py-4 text-base',
-                    'Tier 3': 'bg-[#7c2d12]/80 text-orange-300 border-orange-600/50 py-4 text-base',
-                    'Tier 4': 'bg-[#14532d]/80 text-emerald-300 border-emerald-600/50 py-4 text-base',
-                    'Tier 5': 'bg-[#334155]/80 text-slate-400 border-slate-600/50 py-4 text-base'
-                };
-
-                tierColsGrid.innerHTML = tiersList.map(tierName => {
+                // Render Unified 5 Columns (Header dính liền thân card làm 1 khối duy nhất)
+                tierColumnsGrid.innerHTML = tiersList.map((tierName) => {
                     const validKeys = tierKeys[tierName];
                     const matchedPlayers = filtered.filter(p => p.tiers && p.tiers[activeTab] && validKeys.includes(p.tiers[activeTab]));
-                    const iconUrl = tierCustomIcons[tierName];
 
                     const playerRowsHtml = matchedPlayers.length > 0 ? matchedPlayers.map(p => {
                         const avatarUrl = p.avatarUrl || `https://vzge.me/bust/220/${p.username}.png`;
                         return `
-                            <div class="player-row flex items-center justify-between px-3.5 py-3 bg-[#1e293b]/90 hover:bg-[#283548] rounded-xl mb-2.5 cursor-pointer shadow-sm border border-slate-700/40 transition-all group" onclick="openPlayerModal('${p.username}')">
-                                <div class="flex items-center space-x-3 overflow-hidden">
-                                    <img src="${avatarUrl}" class="w-9 h-9 object-contain flex-shrink-0 rounded-lg drop-shadow" alt="${p.username}" onerror="this.src='https://vzge.me/bust/220/Steve.png'">
+                            <div class="tier-player-card flex flex-row items-center justify-between px-3.5 py-3 mb-2.5 cursor-pointer shadow-sm group" onclick="openPlayerModal('${p.username}')">
+                                <div class="flex flex-row items-center space-x-2.5 overflow-hidden">
+                                    <img src="${avatarUrl}" class="w-10 h-10 object-contain flex-shrink-0 drop-shadow-md pt-0.5" alt="${p.username}" onerror="this.src='https://vzge.me/bust/220/Steve.png'">
                                     <span class="font-extrabold text-white text-sm truncate group-hover:text-pink-400 transition-colors">${p.username}</span>
                                 </div>
-                                <div class="text-slate-400 text-xs flex-shrink-0 pl-2">
+                                <div class="text-slate-400 text-[11px] flex-shrink-0 pl-1">
                                     <i class="fa-solid fa-angles-up text-slate-500 group-hover:text-pink-400 transition-colors"></i>
                                 </div>
                             </div>
                         `;
                     }).join('') : `
-                        <div class="py-14 text-center text-slate-500 text-xs italic">
+                        <div class="py-16 text-center text-slate-500 text-xs italic">
                             Chưa có người chơi
                         </div>
                     `;
 
-                    // Kiểm tra nếu là Tier 4 hoặc Tier 5 thì không hiển thị icon/overall, chỉ hiển thị text đơn thuần như hình mẫu
-                    const headerInner = (tierName === 'Tier 4' || tierName === 'Tier 5') 
-                        ? `${tierName}` 
-                        : `<img src="${iconUrl}" alt="${tierName}" class="w-5 h-5 object-contain" onerror="this.replaceWith(Object.assign(document.createElement('i'), {className: 'fa-solid fa-trophy text-sm'}))"> ${tierName}`;
+                    // Bạn có thể thay đổi đường dẫn URL hình ảnh cho icon của Tier 1, 2, 3 ở đây:
+                    const tierHeaderIcons = {
+                        'Tier 1': 'https://cdn.discordapp.com/attachments/1400362537551401013/1555568557029326949/tier_1.png?backend=b2&ex=6ac0ff9d&is=6abfae1d&hm=87e7bf83e22af42e13c0ed027d5270693bb19d17410a8210dba3e106c9a1fb08&',
+                        'Tier 2': 'https://cdn.discordapp.com/attachments/1400362537551401013/1555568555490156686/tier_2.png?backend=b2&ex=6ac0ff9c&is=6abfae1c&hm=891eb5abec837e4c01dc580e806b456cdeb5f2ae6469aabd8ab9956fb6aa8f2c&',
+                        'Tier 3': 'https://cdn.discordapp.com/attachments/1400362537551401013/1555568556362440735/tier_3.png?backend=b2&ex=6ac0ff9c&is=6abfae1c&hm=4f68080b2ff1b61af72fc2876012b215497c27251c475bdd267791632b1682cc&'
+                    };
+                    
+                    let trophyIcon = '';
+                    if (tierHeaderIcons[tierName]) {
+                        trophyIcon = `<img src="${tierHeaderIcons[tierName]}" class="w-5 h-5 object-contain" alt="${tierName}">`;
+                    }
 
                     return `
-                        <div class="bg-[#162032] border border-slate-800/80 rounded-2xl overflow-hidden flex flex-col shadow-xl">
-                            <div class="font-black text-center border-b ${headerColors[tierName]} uppercase tracking-wider flex items-center justify-center gap-2">
-                                ${headerInner}
+                        <div class="bg-[#162032]/80 backdrop-blur-sm rounded-2xl flex flex-col border border-slate-800/80 shadow-lg overflow-hidden">
+                            <!-- Header dính liền ở trên -->
+                            <div class="${headerStyles[tierName]} py-4 px-4 flex items-center justify-center gap-2.5 font-black uppercase tracking-wider text-sm">
+                                ${trophyIcon} ${tierName}
                             </div>
-                            <div class="p-3.5 flex-1 flex flex-col gap-2 min-h-[240px] justify-start">
+                            <!-- Phần danh sách người chơi bên dưới -->
+                            <div class="p-3 flex flex-col gap-1.5 min-h-[460px]">
                                 ${playerRowsHtml}
                             </div>
                         </div>
@@ -779,7 +796,7 @@
         }
 
         function renderTierPlayerCards(mode, rank) {
-            const assigned = players.filter(p => p.tiers && p.tiers[mode] === rank);
+            const assigned = players.players ? [] : players.filter(p => p.tiers && p.tiers[mode] === rank);
             return assigned.map(p => createDragCardHtml(p)).join('');
         }
 
@@ -832,6 +849,7 @@
         }
 
         function setupSearchListener() {
+            document.getElementById('searchInput').zIndex = 99;
             document.getElementById('searchInput').addEventListener('input', (e) => {
                 searchQuery = e.target.value.trim();
                 renderLeaderboard();
