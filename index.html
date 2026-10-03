@@ -129,7 +129,7 @@
             position: relative;
         }
 
-        /* THẺ PLAYER TRONG CỘT TIER: ĐỒNG BỘ VỚI HÀNG OVERALL (XÁM TRẮNG THANH LỊCH) */
+        /* THẺ PLAYER TRONG CỘT TIER */
         .tier-player-card {
             background-color: #1e293b;
             border: 1px solid rgba(100, 116, 139, 0.35);
@@ -225,11 +225,14 @@
                             class="w-full bg-slate-900/80 text-xs text-white pl-10 pr-3.5 py-2 rounded-xl border border-slate-700 focus:outline-none focus:border-pink-400 shadow-inner transition-all placeholder:text-slate-500">
                     </div>
 
-                    <a href="#" id="discordAuthBtn" onclick="loginWithDiscord(event)" class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 transition-all shadow-md shadow-discordBlurple/20 flex-shrink-0">
-                        <i class="fa-brands fa-discord text-sm"></i>
-                        <span class="hidden sm:inline">Đăng nhập với Discord</span>
-                        <span class="sm:hidden">Discord</span>
-                    </a>
+                    <!-- KHU VỰC THÔNG TIN USER / ĐĂNG NHẬP -->
+                    <div id="userAuthContainer" class="flex-shrink-0">
+                        <a href="#" id="discordAuthBtn" onclick="loginWithDiscord(event)" class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 transition-all shadow-md shadow-discordBlurple/20 flex-shrink-0">
+                            <i class="fa-brands fa-discord text-sm"></i>
+                            <span class="hidden sm:inline">Đăng nhập với Discord</span>
+                            <span class="sm:hidden">Discord</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -276,9 +279,8 @@
                     </div>
                 </div>
 
-                <!-- CONTAINER CHO CÁC CHẾ ĐỘ RIÊNG: Giao diện 5 cột Tier liền mạch chuẩn ảnh mẫu -->
+                <!-- CONTAINER CHO CÁC CHẾ ĐỘ RIÊNG -->
                 <div id="modeTierColumnsContent" class="hidden p-4 sm:p-5">
-                    <!-- Hàng chứa 5 Cột Tier liền mạch (Header liền thân card) -->
                     <div id="tierColumnsGrid" class="grid grid-cols-1 sm:grid-cols-5 gap-3.5 min-h-[420px]">
                         <!-- Render qua JS -->
                     </div>
@@ -330,12 +332,10 @@
     <div id="playerModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-[#162032] w-full max-w-[490px] rounded-2xl shadow-2xl p-6 sm:p-7 relative flex flex-col items-center text-center">
             
-            <!-- Nút Đóng -->
             <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
 
-            <!-- Avatar & Khung hiệu ứng vòng lửa -->
             <div class="relative mt-2 mb-4">
                 <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-rose-500 p-1 flex items-center justify-center shadow-lg shadow-pink-500/20">
                     <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center overflow-hidden">
@@ -344,14 +344,12 @@
                 </div>
             </div>
 
-            <!-- Tên Player & Icon Cúp -->
             <div class="flex items-center justify-center gap-2 mb-5">
                 <span class="text-amber-400 text-lg"><i class="fa-solid fa-trophy"></i></span>
                 <h2 id="modalUsername" class="text-2xl font-black bg-gradient-to-r from-amber-200 via-pink-300 to-rose-400 bg-clip-text text-transparent">Player</h2>
                 <button onclick="copyProfileLink()" class="text-slate-400 hover:text-white text-xs ml-1" title="Sao chép liên kết"><i class="fa-regular fa-copy"></i></button>
             </div>
 
-            <!-- Khung Thẻ Hạng Tổng (Overall Box) -->
             <div class="w-full bg-[#1e293b] border border-slate-700/50 rounded-xl py-4 px-4 mb-5 shadow-inner">
                 <div id="modalRankNum" class="text-2xl font-black text-white mb-0.5">#1</div>
                 <div class="flex items-center justify-center gap-1.5 text-amber-400 text-xs font-black tracking-wider">
@@ -359,7 +357,6 @@
                 </div>
             </div>
 
-            <!-- Phần Tiers các mode -->
             <div class="w-full text-left">
                 <h3 class="text-xs font-extrabold text-slate-400 tracking-widest uppercase mb-2 text-center">TIERS</h3>
                 <div id="modalTiersContainer" class="bg-[#111827]/70 border border-slate-800 rounded-xl p-4 flex flex-wrap items-center justify-center gap-3.5">
@@ -374,17 +371,18 @@
 
     <script>
         // CẤU HÌNH APPWRITE
-        const { Client, Databases, Account, Query } = Appwrite;
+        const { Client, Databases, Account, Avatars, Query } = Appwrite;
         
         const client = new Client()
             .setEndpoint('https://sgp.cloud.appwrite.io/v1') 
-            .setProject('6abe0b1f00000e883399'); // Project ID của bạn
+            .setProject('6abe0b1f00000e883399');
 
         const databases = new Databases(client);
         const account = new Account(client);
+        const avatars = new Avatars(client);
         
-        const DATABASE_ID = '6abe0bb6000caab818b9'; // Database ID của bạn
-        const COLLECTION_ID = '6abe0d8300108a42b831'; // Collection ID của bạn
+        const DATABASE_ID = '6abe0bb6000caab818b9';
+        const COLLECTION_ID = '6abe0d8300108a42b831';
 
         const TIER_POINTS = {
             'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10,
@@ -428,14 +426,64 @@
             setupSearchListener();
             checkAuthStatus();
             setTimeout(updateIndicatorPosition, 50);
+
+            // Bắt sự kiện click bên ngoài để đóng UserMenu Dropdown
+            document.addEventListener('click', (event) => {
+                const menuContainer = document.getElementById('userMenuContainer');
+                if (menuContainer && !menuContainer.contains(event.target)) {
+                    closeUserMenu();
+                }
+            });
         });
 
         window.addEventListener('resize', () => updateIndicatorPosition());
 
-        // Kiểm tra trạng thái đăng nhập Discord
+        // Kiểm tra trạng thái đăng nhập & Lấy Avatar thực tế từ Discord API
         async function checkAuthStatus() {
             try {
-                currentUser = await account.get();
+                const user = await account.get();
+                let realAvatarUrl = null;
+                let discordUsername = user.name;
+                let discordDisplayName = user.name;
+
+                try {
+                    const session = await account.getSession('current');
+                    if (session && session.providerAccessToken) {
+                        const res = await fetch('https://discord.com/api/users/@me', {
+                            headers: {
+                                Authorization: `Bearer ${session.providerAccessToken}`
+                            }
+                        });
+                        
+                        if (res.ok) {
+                            const discordData = await res.json();
+                            discordUsername = discordData.username || user.name;
+                            discordDisplayName = discordData.global_name || discordData.username || user.name;
+
+                            if (discordData.avatar) {
+                                realAvatarUrl = `https://cdn.discordapp.com/avatars/${discordData.id}/${discordData.avatar}.png?size=128`;
+                            } else {
+                                const defaultAvatarNum = (BigInt(discordData.id) >> 22n) % 5n;
+                                realAvatarUrl = `https://cdn.discordapp.com/embed/avatars/${defaultAvatarNum}.png`;
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Không thể lấy dữ liệu từ Discord API:", err);
+                }
+
+                // Nếu không lấy được avatar từ Discord API, tự tạo bằng Appwrite Avatars
+                if (!realAvatarUrl) {
+                    realAvatarUrl = avatars.getInitials(user.name || 'User').toString();
+                }
+
+                currentUser = {
+                    ...user,
+                    displayName: discordDisplayName,
+                    username: discordUsername,
+                    avatarUrl: realAvatarUrl
+                };
+
                 renderUserAuthUI(currentUser);
             } catch (err) {
                 currentUser = null;
@@ -443,26 +491,113 @@
             }
         }
 
+        // TOGGLE HIỂN THỊ MENU DROPDOWN NGƯỜI DÙNG
+        function toggleUserMenu(e) {
+            if (e) e.stopPropagation();
+            const dropdown = document.getElementById('userMenuDropdown');
+            const chevron = document.getElementById('userMenuChevron');
+            if (!dropdown) return;
+
+            const isHidden = dropdown.classList.contains('hidden');
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+                if (chevron) chevron.classList.add('rotate-180');
+            } else {
+                dropdown.classList.add('hidden');
+                if (chevron) chevron.classList.remove('rotate-180');
+            }
+        }
+
+        function closeUserMenu() {
+            const dropdown = document.getElementById('userMenuDropdown');
+            const chevron = document.getElementById('userMenuChevron');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+                if (chevron) chevron.classList.remove('rotate-180');
+            }
+        }
+
+        // RENDER USER AUTH UI
         function renderUserAuthUI(user) {
-            const authBtn = document.getElementById('discordAuthBtn');
-            if (!authBtn) return;
+            const container = document.getElementById('userAuthContainer');
+            if (!container) return;
 
             if (user) {
-                authBtn.innerHTML = `
-                    <i class="fa-brands fa-discord text-sm text-green-400"></i>
-                    <span class="hidden sm:inline font-bold">${user.name || user.email || 'Đã đăng nhập'}</span>
-                    <button onclick="logoutDiscord(event)" class="ml-1 text-slate-400 hover:text-rose-400 text-xs px-1" title="Đăng xuất">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                    </button>
+                const displayName = user.displayName || user.name || 'Người dùng';
+                const username = user.username || 'user';
+                const avatarUrl = user.avatarUrl;
+
+                container.innerHTML = `
+                    <div id="userMenuContainer" class="relative inline-block text-left select-none">
+                        <!-- NÚT THÔNG TIN USER BAN ĐẦU -->
+                        <button
+                            onclick="toggleUserMenu(event)"
+                            type="button"
+                            class="flex items-center gap-3 px-3 py-1.5 bg-[#121620] hover:bg-[#1a1f2c] border border-gray-800/80 rounded-xl transition-all cursor-pointer text-white"
+                        >
+                            <img
+                                src="${avatarUrl}"
+                                alt="${displayName}"
+                                class="w-8 h-8 rounded-lg object-cover bg-slate-800"
+                                onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"
+                            />
+
+                            <div class="flex flex-col text-left leading-tight">
+                                <span class="font-bold text-xs text-white">${displayName}</span>
+                                <span class="text-[10px] text-gray-400">@${username}</span>
+                            </div>
+
+                            <i id="userMenuChevron" class="fa-solid fa-chevron-down text-[10px] text-gray-400 transition-transform duration-200 ml-1"></i>
+                        </button>
+
+                        <!-- BẢNG POPUP SỔ XUỐNG -->
+                        <div id="userMenuDropdown" class="hidden absolute right-0 mt-2 w-64 bg-[#121620] border border-gray-800 rounded-2xl shadow-2xl z-50 p-4">
+                            <!-- Header thông tin người dùng trong popup -->
+                            <div class="flex items-center justify-between pb-3 border-b border-gray-800/80">
+                                <div class="flex items-center gap-3">
+                                    <img
+                                        src="${avatarUrl}"
+                                        alt="${displayName}"
+                                        class="w-10 h-10 rounded-xl object-cover bg-slate-800"
+                                        onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"
+                                    />
+                                    <div class="flex flex-col text-left leading-tight">
+                                        <span class="font-bold text-sm text-white">${displayName}</span>
+                                        <span class="text-xs text-gray-400">@${username}</span>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onclick="toggleUserMenu(event)"
+                                    class="text-gray-400 hover:text-white transition-colors"
+                                    type="button"
+                                >
+                                    <i class="fa-solid fa-chevron-up text-xs"></i>
+                                </button>
+                            </div>
+
+                            <!-- Nút Đăng xuất -->
+                            <div class="pt-3">
+                                <button
+                                    onclick="logoutDiscord(event)"
+                                    type="button"
+                                    class="w-full flex items-center gap-2.5 px-2 py-2 text-sm font-medium text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                                >
+                                    <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                                    <span>Đăng xuất</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 `;
-                authBtn.onclick = null;
             } else {
-                authBtn.innerHTML = `
-                    <i class="fa-brands fa-discord text-sm"></i>
-                    <span class="hidden sm:inline">Đăng nhập với Discord</span>
-                    <span class="sm:hidden">Discord</span>
+                container.innerHTML = `
+                    <a href="#" id="discordAuthBtn" onclick="loginWithDiscord(event)" class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 transition-all shadow-md shadow-discordBlurple/20 flex-shrink-0">
+                        <i class="fa-brands fa-discord text-sm"></i>
+                        <span class="hidden sm:inline">Đăng nhập với Discord</span>
+                        <span class="sm:hidden">Discord</span>
+                    </a>
                 `;
-                authBtn.onclick = (e) => loginWithDiscord(e);
             }
         }
 
@@ -470,13 +605,8 @@
         function loginWithDiscord(e) {
             if (e) e.preventDefault();
             try {
-                // Chuyển hướng người dùng sang trang xác thực Discord qua Appwrite
                 const redirectUrl = window.location.href.split('?')[0].split('#')[0];
-                account.createOAuth2Session(
-                    'discord',
-                    redirectUrl, // URL chuyển hướng sau khi đăng nhập thành công
-                    redirectUrl  // URL chuyển hướng khi thất bại
-                );
+                account.createOAuth2Session('discord', redirectUrl, redirectUrl);
             } catch (err) {
                 console.error("Lỗi đăng nhập Discord:", err);
                 alert("Đăng nhập thất bại: " + err.message);
@@ -702,7 +832,6 @@
                                 <span class="font-black text-xl text-pink-400 tracking-wide">${player.points}</span>
                             </div>
                             
-                            <!-- THANH NGANG CUỘN QUA LẠI CHO HUY HIỆU TIER -->
                             <div class="flex-1 horizontal-scroll-container py-1">
                                 <div class="flex items-center space-x-3 w-max">${badgesHtml}</div>
                             </div>
@@ -910,11 +1039,13 @@
         }
 
         function setupSearchListener() {
-            document.getElementById('searchInput').zIndex = 99;
-            document.getElementById('searchInput').addEventListener('input', (e) => {
-                searchQuery = e.target.value.trim();
-                renderLeaderboard();
-            });
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value.trim();
+                    renderLeaderboard();
+                });
+            }
         }
 
         async function deletePlayer(docId, username) {
