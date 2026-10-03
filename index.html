@@ -225,7 +225,7 @@
                             class="w-full bg-slate-900/80 text-xs text-white pl-10 pr-3.5 py-2 rounded-xl border border-slate-700 focus:outline-none focus:border-pink-400 shadow-inner transition-all placeholder:text-slate-500">
                     </div>
 
-                    <a href="#" onclick="loginWithDiscord(event)" class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 transition-all shadow-md shadow-discordBlurple/20 flex-shrink-0">
+                    <a href="#" id="discordAuthBtn" onclick="loginWithDiscord(event)" class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 transition-all shadow-md shadow-discordBlurple/20 flex-shrink-0">
                         <i class="fa-brands fa-discord text-sm"></i>
                         <span class="hidden sm:inline">Đăng nhập với Discord</span>
                         <span class="sm:hidden">Discord</span>
@@ -374,13 +374,14 @@
 
     <script>
         // CẤU HÌNH APPWRITE
-        const { Client, Databases, Query } = Appwrite;
+        const { Client, Databases, Account, Query } = Appwrite;
         
         const client = new Client()
             .setEndpoint('https://sgp.cloud.appwrite.io/v1') 
             .setProject('6abe0b1f00000e883399'); // Project ID của bạn
 
         const databases = new Databases(client);
+        const account = new Account(client);
         
         const DATABASE_ID = '6abe0bb6000caab818b9'; // Database ID của bạn
         const COLLECTION_ID = '6abe0d8300108a42b831'; // Collection ID của bạn
@@ -389,6 +390,8 @@
             'HT1': 60, 'LT1': 45, 'HT2': 30, 'LT2': 20, 'HT3': 10,
             'LT3': 6, 'HT4': 4, 'LT4': 3, 'HT5': 2, 'LT5': 1
         };
+
+        let currentUser = null;
 
         function calculatePlayerPoints(tiersObj) {
             if (!tiersObj) return 0;
@@ -423,10 +426,78 @@
             renderTabs();
             fetchTiersFromAppwrite();
             setupSearchListener();
+            checkAuthStatus();
             setTimeout(updateIndicatorPosition, 50);
         });
 
         window.addEventListener('resize', () => updateIndicatorPosition());
+
+        // Kiểm tra trạng thái đăng nhập Discord
+        async function checkAuthStatus() {
+            try {
+                currentUser = await account.get();
+                renderUserAuthUI(currentUser);
+            } catch (err) {
+                currentUser = null;
+                renderUserAuthUI(null);
+            }
+        }
+
+        function renderUserAuthUI(user) {
+            const authBtn = document.getElementById('discordAuthBtn');
+            if (!authBtn) return;
+
+            if (user) {
+                authBtn.innerHTML = `
+                    <i class="fa-brands fa-discord text-sm text-green-400"></i>
+                    <span class="hidden sm:inline font-bold">${user.name || user.email || 'Đã đăng nhập'}</span>
+                    <button onclick="logoutDiscord(event)" class="ml-1 text-slate-400 hover:text-rose-400 text-xs px-1" title="Đăng xuất">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                `;
+                authBtn.onclick = null;
+            } else {
+                authBtn.innerHTML = `
+                    <i class="fa-brands fa-discord text-sm"></i>
+                    <span class="hidden sm:inline">Đăng nhập với Discord</span>
+                    <span class="sm:hidden">Discord</span>
+                `;
+                authBtn.onclick = (e) => loginWithDiscord(e);
+            }
+        }
+
+        // Đăng nhập Discord OAuth2 với Appwrite
+        function loginWithDiscord(e) {
+            if (e) e.preventDefault();
+            try {
+                // Chuyển hướng người dùng sang trang xác thực Discord qua Appwrite
+                const redirectUrl = window.location.href.split('?')[0].split('#')[0];
+                account.createOAuth2Session(
+                    'discord',
+                    redirectUrl, // URL chuyển hướng sau khi đăng nhập thành công
+                    redirectUrl  // URL chuyển hướng khi thất bại
+                );
+            } catch (err) {
+                console.error("Lỗi đăng nhập Discord:", err);
+                alert("Đăng nhập thất bại: " + err.message);
+            }
+        }
+
+        // Đăng xuất Discord
+        async function logoutDiscord(e) {
+            if (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            try {
+                await account.deleteSession('current');
+                currentUser = null;
+                renderUserAuthUI(null);
+                alert("Đã đăng xuất thành công!");
+            } catch (err) {
+                console.error("Lỗi đăng xuất:", err);
+            }
+        }
 
         async function fetchTiersFromAppwrite() {
             try {
@@ -457,11 +528,6 @@
             } catch (err) {
                 console.error('Lỗi kết nối Appwrite:', err);
             }
-        }
-
-        function loginWithDiscord(e) {
-            e.preventDefault();
-            alert("Tính năng Đăng nhập với Discord đang được kết nối!");
         }
 
         function switchMainView(view) {
@@ -660,7 +726,6 @@
                 const tiersList = ['Tier 1', 'Tier 2', 'Tier 3', 'Tier 4', 'Tier 5'];
                 const tierKeys = { 'Tier 1': ['HT1', 'LT1'], 'Tier 2': ['HT2', 'LT2'], 'Tier 3': ['HT3', 'LT3'], 'Tier 4': ['HT4', 'LT4'], 'Tier 5': ['HT5', 'LT5'] };
                 
-                // Chỉ Tier 1, 2, 3 mới có màu nền/gradient nổi bật, còn Tier 4, 5 để đơn giản (không màu rực rỡ)
                 const headerStyles = {
                     'Tier 1': 'bg-gradient-to-r from-amber-700/90 to-amber-600/90 text-amber-200 border-b border-amber-500/30',
                     'Tier 2': 'bg-gradient-to-r from-slate-700/90 to-slate-600/90 text-slate-200 border-b border-slate-500/30',
@@ -669,7 +734,6 @@
                     'Tier 5': 'bg-[#162032] text-slate-400 border-b border-slate-700/50'
                 };
 
-                // Render Unified 5 Columns (Header dính liền thân card làm 1 khối duy nhất)
                 tierColumnsGrid.innerHTML = tiersList.map((tierName) => {
                     const validKeys = tierKeys[tierName];
                     const matchedPlayers = filtered.filter(p => p.tiers && p.tiers[activeTab] && validKeys.includes(p.tiers[activeTab]));
@@ -693,7 +757,6 @@
                         </div>
                     `;
 
-                    // Bạn có thể thay đổi đường dẫn URL hình ảnh cho icon của Tier 1, 2, 3 ở đây:
                     const tierHeaderIcons = {
                         'Tier 1': 'https://cdn.discordapp.com/attachments/1400362537551401013/1555568557029326949/tier_1.png?backend=b2&ex=6ac0ff9d&is=6abfae1d&hm=87e7bf83e22af42e13c0ed027d5270693bb19d17410a8210dba3e106c9a1fb08&',
                         'Tier 2': 'https://cdn.discordapp.com/attachments/1400362537551401013/1555568555490156686/tier_2.png?backend=b2&ex=6ac0ff9c&is=6abfae1c&hm=891eb5abec837e4c01dc580e806b456cdeb5f2ae6469aabd8ab9956fb6aa8f2c&',
@@ -707,11 +770,9 @@
 
                     return `
                         <div class="bg-[#162032]/80 backdrop-blur-sm rounded-2xl flex flex-col border border-slate-800/80 shadow-lg overflow-hidden">
-                            <!-- Header dính liền ở trên -->
                             <div class="${headerStyles[tierName]} py-4 px-4 flex items-center justify-center gap-2.5 font-black uppercase tracking-wider text-sm">
                                 ${trophyIcon} ${tierName}
                             </div>
-                            <!-- Phần danh sách người chơi bên dưới -->
                             <div class="p-3 flex flex-col gap-1.5 min-h-[460px]">
                                 ${playerRowsHtml}
                             </div>
