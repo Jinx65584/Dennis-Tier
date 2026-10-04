@@ -195,6 +195,28 @@
             z-index: 30;
             box-shadow: none;
         }
+
+        /* HIỆU ỨNG THU GỌN NÚT ĐĂNG NHẬP MƯỢT MÀ BẰNG CSS GRID */
+        .btn-text-collapse {
+            display: grid;
+            grid-template-columns: 1fr;
+            transition: grid-template-columns 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
+                        opacity 0.25s ease,
+                        margin 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1;
+        }
+
+        .btn-text-collapse.collapsed {
+            grid-template-columns: 0fr;
+            opacity: 0;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        .btn-text-inner {
+            overflow: hidden;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-pink-500 selection:text-white">
@@ -227,10 +249,16 @@
 
                     <!-- KHU VỰC THÔNG TIN USER / ĐĂNG NHẬP -->
                     <div id="userAuthContainer" class="flex-shrink-0">
-                        <a href="#" id="discordAuthBtn" onclick="loginWithDiscord(event)" class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 transition-all shadow-md shadow-discordBlurple/20 flex-shrink-0">
-                            <i class="fa-brands fa-discord text-sm"></i>
-                            <span class="hidden sm:inline">Đăng nhập với Discord</span>
-                            <span class="sm:hidden">Discord</span>
+                        <a href="#" id="discordAuthBtn" onclick="loginWithDiscord(event)" 
+                           class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center justify-center transition-all duration-300 ease-in-out shadow-md shadow-discordBlurple/20 flex-shrink-0 active:scale-95 transform overflow-hidden">
+                            <i class="fa-brands fa-discord text-sm flex-shrink-0"></i>
+                            <div id="discordBtnText" class="btn-text-collapse ml-2">
+                                <div class="btn-text-inner">
+                                    <span class="hidden sm:inline">Đăng nhập với Discord</span>
+                                    <span class="sm:hidden">Discord</span>
+                                </div>
+                            </div>
+                            <i id="discordBtnSpinner" class="fa-solid fa-circle-notch fa-spin text-xs hidden opacity-0 transition-all duration-300"></i>
                         </a>
                     </div>
                 </div>
@@ -592,25 +620,60 @@
                 `;
             } else {
                 container.innerHTML = `
-                    <a href="#" id="discordAuthBtn" onclick="loginWithDiscord(event)" class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-2 transition-all shadow-md shadow-discordBlurple/20 flex-shrink-0">
-                        <i class="fa-brands fa-discord text-sm"></i>
-                        <span class="hidden sm:inline">Đăng nhập với Discord</span>
-                        <span class="sm:hidden">Discord</span>
+                    <a href="#" id="discordAuthBtn" onclick="loginWithDiscord(event)" 
+                       class="bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center justify-center transition-all duration-300 ease-in-out shadow-md shadow-discordBlurple/20 flex-shrink-0 active:scale-95 transform overflow-hidden">
+                        <i class="fa-brands fa-discord text-sm flex-shrink-0"></i>
+                        <div id="discordBtnText" class="btn-text-collapse ml-2">
+                            <div class="btn-text-inner">
+                                <span class="hidden sm:inline">Đăng nhập với Discord</span>
+                                <span class="sm:hidden">Discord</span>
+                            </div>
+                        </div>
+                        <i id="discordBtnSpinner" class="fa-solid fa-circle-notch fa-spin text-xs hidden opacity-0 transition-all duration-300"></i>
                     </a>
                 `;
             }
         }
 
-        // Đăng nhập Discord OAuth2 với Appwrite
+        // Đăng nhập Discord OAuth2 với Appwrite & Hiệu ứng Thu gọn GUI Mượt mà
         function loginWithDiscord(e) {
             if (e) e.preventDefault();
-            try {
-                const redirectUrl = window.location.href.split('?')[0].split('#')[0];
-                account.createOAuth2Session('discord', redirectUrl, redirectUrl);
-            } catch (err) {
-                console.error("Lỗi đăng nhập Discord:", err);
-                alert("Đăng nhập thất bại: " + err.message);
+            
+            const btn = document.getElementById('discordAuthBtn');
+            const btnText = document.getElementById('discordBtnText');
+            const btnSpinner = document.getElementById('discordBtnSpinner');
+
+            if (btn && btnText) {
+                // 1. Khóa click liên tiếp & tạo hiệu ứng nhấn thụt nhẹ (scale-95)
+                btn.classList.add('pointer-events-none', 'scale-95');
+
+                // 2. Kích hoạt animation co thụt chiều ngang mượt mà bằng CSS Grid
+                btnText.classList.add('collapsed');
+
+                // 3. Khi chữ co lại xong, trả lại scale chuẩn và hiển thị icon xoay loading
+                setTimeout(() => {
+                    btn.classList.remove('scale-95');
+                    if (btnSpinner) {
+                        btnSpinner.classList.remove('hidden');
+                        btnSpinner.classList.add('ml-2');
+                        setTimeout(() => {
+                            btnSpinner.classList.remove('opacity-0');
+                        }, 20);
+                    }
+                }, 180);
             }
+
+            // 4. Trì hoãn 450ms để toàn bộ animation thu gọn diễn ra hoàn hảo trước khi chuyển hướng
+            setTimeout(() => {
+                try {
+                    const redirectUrl = window.location.href.split('?')[0].split('#')[0];
+                    account.createOAuth2Session('discord', redirectUrl, redirectUrl);
+                } catch (err) {
+                    console.error("Lỗi đăng nhập Discord:", err);
+                    alert("Đăng nhập thất bại: " + err.message);
+                    renderUserAuthUI(null);
+                }
+            }, 450);
         }
 
         // Đăng xuất Discord
