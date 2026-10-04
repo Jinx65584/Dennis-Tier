@@ -237,7 +237,7 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-pink-500 selection:text-white">
 
-    <!-- Navigation Bar -->
+    <!-- Navigation Bar (Đã mở rộng max-width thành 1360px) -->
     <nav class="w-full border-b border-slate-800 bg-[#0f172a]/85 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div class="max-w-[1360px] mx-auto px-4 sm:px-6">
             <div class="flex items-center justify-between h-16">
@@ -282,7 +282,7 @@
         </div>
     </nav>
 
-    <!-- Main Content Container -->
+    <!-- Main Content Container (Đã mở rộng max-width thành 1360px để bảng dài sang 2 bên) -->
     <main class="flex-1 max-w-[1360px] w-full mx-auto px-4 sm:px-6 py-6 relative z-10">
         
         <div class="mb-14 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -310,13 +310,12 @@
                 
                 <!-- CONTAINER CHO CHẾ ĐỘ OVERALL -->
                 <div id="overallLeaderboardContent" class="p-4 sm:p-6">
-                    <!-- ĐÃ TỐI ƯU CHIỀU RỘNG CỘT POINTS VÀ TIERS -->
                     <div class="flex items-center text-sm font-black text-slate-300 tracking-wider uppercase px-4 py-3 bg-[#162032]/70 rounded-lg mb-3">
-                        <div class="w-12 text-center flex-shrink-0">#</div>
-                        <div class="w-[28%] sm:w-[24%] flex-shrink-0">PLAYER</div>
-                        <div class="w-24 sm:w-28 text-left flex-shrink-0">POINTS</div>
+                        <div class="w-14 text-center flex-shrink-0">#</div>
+                        <div class="w-[30%] sm:w-[26%] flex-shrink-0">PLAYER</div>
+                        <div class="w-32 sm:w-36 text-left flex-shrink-0">POINTS</div>
                         <div class="flex-1">TIERS</div>
-                        <div class="w-12 text-center flex-shrink-0"></div>
+                        <div class="w-16 text-center flex-shrink-0"></div>
                     </div>
 
                     <div id="leaderboardBody" class="flex flex-col text-sm font-semibold">
@@ -415,6 +414,7 @@
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
 
     <script>
+        // CẤU HÌNH APPWRITE
         const { Client, Databases, Account, Avatars, Query } = Appwrite;
         
         const client = new Client()
@@ -891,45 +891,43 @@
                         const tierVal = player.tiers ? player.tiers[mode.id] : null;
                         if (!tierVal) {
                             return `
-                                <div class="flex flex-col items-center gap-1.5 flex-shrink-0 min-w-[46px] opacity-85">
-                                    <div class="w-9 h-9 rounded-full tier-circle-empty flex items-center justify-center">
-                                        <img src="${mode.icon}" class="w-4 h-4 object-contain opacity-55" alt="${mode.name}">
+                                <div class="flex flex-col items-center gap-1.5 flex-shrink-0 min-w-[50px] opacity-85">
+                                    <div class="w-10 h-10 rounded-full tier-circle-empty flex items-center justify-center">
+                                        <img src="${mode.icon}" class="w-5 h-5 object-contain opacity-55" alt="${mode.name}">
                                     </div>
-                                    <span class="tier-label-empty text-[11px] font-black px-1.5 py-0.5 rounded leading-none">-</span>
+                                    <span class="tier-label-empty text-xs font-black px-2 py-0.5 rounded leading-none">-</span>
                                 </div>
                             `;
                         }
                         const tClass = getTierClass(tierVal);
                         return `
-                            <div class="flex flex-col items-center gap-1.5 flex-shrink-0 min-w-[46px] group relative">
-                                <div class="w-9 h-9 rounded-full ${tClass.circle} flex items-center justify-center shadow-sm">
-                                    <img src="${mode.icon}" class="w-4 h-4 object-contain" alt="${mode.name}">
+                            <div class="flex flex-col items-center gap-1.5 flex-shrink-0 min-w-[50px] group relative">
+                                <div class="w-10 h-10 rounded-full ${tClass.circle} flex items-center justify-center shadow-sm">
+                                    <img src="${mode.icon}" class="w-5 h-5 object-contain" alt="${mode.name}">
                                 </div>
-                                <span class="${tClass.label} text-[11px] font-black px-1.5 py-0.5 rounded leading-none tracking-tight shadow-sm">${tierVal}</span>
+                                <span class="${tClass.label} text-xs font-black px-2 py-0.5 rounded leading-none tracking-tight shadow-sm">${tierVal}</span>
                             </div>
                         `;
                     }).join('');
 
                     return `
                         <div class="player-row flex flex-row items-center px-4 py-3.5" onclick="openPlayerModal('${player.username}')">
-                            <div class="w-12 text-center flex-shrink-0">${rankDisplay}</div>
-                            <div class="w-[28%] sm:w-[24%] flex-shrink-0">
+                            <div class="w-14 text-center flex-shrink-0">${rankDisplay}</div>
+                            <div class="w-[30%] sm:w-[26%] flex-shrink-0">
                                 <div class="flex flex-row items-center space-x-3.5">
-                                    <img src="${skinUrl}" alt="${player.username}" onerror="this.src='https://vzge.me/bust/220/Steve'" class="w-14 h-14 object-contain flex-shrink-0 drop-shadow-lg">
+                                    <img src="${skinUrl}" alt="${player.username}" onerror="this.src='https://vzge.me/bust/220/Steve'" class="w-16 h-16 object-contain flex-shrink-0 drop-shadow-lg">
                                     <span class="font-extrabold text-white text-base group-hover:text-pink-400 transition-colors truncate">${player.username}</span>
                                 </div>
                             </div>
-                            <!-- CỘT POINTS ĐÃ THU GỌN KÍCH THƯỚC -->
-                            <div class="w-24 sm:w-28 text-left flex-shrink-0">
+                            <div class="w-32 sm:w-36 text-left flex-shrink-0">
                                 <span class="font-black text-xl text-pink-400 tracking-wide">${player.points}</span>
                             </div>
                             
-                            <!-- CỘT TIERS ĐÃ TỐI ƯU KHÔNG GIAN CUỘN -->
                             <div class="flex-1 horizontal-scroll-container py-1">
-                                <div class="flex items-center space-x-3 w-max">${badgesHtml}</div>
+                                <div class="flex items-center space-x-4 w-max">${badgesHtml}</div>
                             </div>
 
-                            <div class="w-12 text-center flex-shrink-0">
+                            <div class="w-16 text-center flex-shrink-0">
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button onclick="event.stopPropagation(); deletePlayer('${player.id}', '${player.username}')" class="text-slate-400 hover:text-rose-400 p-1.5 transition-colors text-sm ml-1" title="Xóa player"><i class="fa-solid fa-trash"></i></button>
                                 </div>
@@ -965,7 +963,7 @@
                         return `
                             <div class="tier-player-card flex flex-row items-center justify-between px-3.5 py-3 mb-2.5 cursor-pointer shadow-sm group" onclick="openPlayerModal('${p.username}')">
                                 <div class="flex flex-row items-center space-x-2.5 overflow-hidden">
-                                    <img src="${avatarUrl}" class="w-9 h-9 object-contain flex-shrink-0 drop-shadow-md pt-0.5" alt="${p.username}" onerror="this.src='https://vzge.me/bust/220/Steve.png'">
+                                    <img src="${avatarUrl}" class="w-10 h-10 object-contain flex-shrink-0 drop-shadow-md pt-0.5" alt="${p.username}" onerror="this.src='https://vzge.me/bust/220/Steve.png'">
                                     <span class="font-extrabold text-white text-sm truncate group-hover:text-pink-400 transition-colors">${p.username}</span>
                                 </div>
                                 <div class="text-slate-400 text-[11px] flex-shrink-0 pl-1">
@@ -1022,20 +1020,20 @@
                 if (!tierVal) {
                     return `
                         <div class="flex flex-col items-center gap-1.5 flex-shrink-0 opacity-85">
-                            <div class="w-9 h-9 rounded-full tier-circle-empty flex items-center justify-center shadow-sm">
-                                <img src="${mode.icon}" class="w-4 h-4 object-contain opacity-55" alt="${mode.name}">
+                            <div class="w-10 h-10 rounded-full tier-circle-empty flex items-center justify-center shadow-sm">
+                                <img src="${mode.icon}" class="w-5 h-5 object-contain opacity-55" alt="${mode.name}">
                             </div>
-                            <span class="tier-label-empty text-[11px] font-black px-1.5 py-0.5 rounded leading-none">-</span>
+                            <span class="tier-label-empty text-xs font-black px-2 py-0.5 rounded leading-none">-</span>
                         </div>
                     `;
                 }
                 const tClass = getTierClass(tierVal);
                 return `
                     <div class="flex flex-col items-center gap-1.5 flex-shrink-0 group relative">
-                        <div class="w-9 h-9 rounded-full ${tClass.circle} flex items-center justify-center shadow-sm">
-                            <img src="${mode.icon}" class="w-4 h-4 object-contain" alt="${mode.name}">
+                        <div class="w-10 h-10 rounded-full ${tClass.circle} flex items-center justify-center shadow-sm">
+                            <img src="${mode.icon}" class="w-5 h-5 object-contain" alt="${mode.name}">
                         </div>
-                        <span class="${tClass.label} text-[11px] font-black px-1.5 py-0.5 rounded leading-none tracking-tight shadow-sm">${tierVal}</span>
+                        <span class="${tClass.label} text-xs font-black px-2 py-0.5 rounded leading-none tracking-tight shadow-sm">${tierVal}</span>
                     </div>
                 `;
             }).join('');
@@ -1087,7 +1085,7 @@
             return `
                 <div draggable="true" ondragstart="handleDragStart(event, '${player.username}')" 
                      class="drag-item bg-slate-800 hover:border-pink-400 p-1.5 rounded-lg flex items-center space-x-2 cursor-grab active:cursor-grabbing shadow-sm transition-all hover:scale-105">
-                    <img src="${skinUrl}" class="w-7 h-7 object-contain">
+                    <img src="${skinUrl}" class="w-8 h-8 object-contain">
                     <span class="text-xs font-bold text-slate-200 pr-1">${player.username}</span>
                 </div>
             `;
