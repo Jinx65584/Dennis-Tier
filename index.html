@@ -102,7 +102,7 @@
         .tier-label-tier4 { background-color: rgba(22, 101, 52, 0.3); color: #86efac; }
 
         .tier-circle-tier5 { border: 2.5px solid rgba(209, 213, 219, 0.45); background-color: rgba(249, 250, 251, 0.08); }
-        .tier-label-tier5 { background-color: rgba(107, 114, 128, 0.3); color: #d1d5db; }
+        .tier-label-tier5 { background-color: rgba(107, 114, 128, 0.3); color: d1d5db; }
 
         .tier-circle-empty { border: 2.5px dashed rgba(100, 116, 139, 0.4); background-color: transparent; opacity: 0.6; }
         .tier-label-empty { background-color: #162032; color: #94a3b8; opacity: 1; border: none; }
@@ -237,13 +237,13 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-pink-500 selection:text-white">
 
-    <!-- Navigation Bar (Đã mở rộng max-width thành 1360px) -->
+    <!-- Navigation Bar -->
     <nav class="w-full border-b border-slate-800 bg-[#0f172a]/85 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div class="max-w-[1360px] mx-auto px-4 sm:px-6">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-8">
                     <a href="#" class="flex items-center space-x-3 group">
-                        <img src="https://cdn.discordapp.com/attachments/1549667894571307078/1555601551110967296/minecraft_title.png?backend=b2&ex=6ac26fd7&is=6ac11e57&hm=6b63ae2ff27835ef2b9ba1e4df52b6126f91a5d9aa6a3c9310bcc7da33a72dee&">
+                        <img src="https://media.discordapp.net/attachments/1549667894571307078/1555601551110967296/minecraft_title.png?backend=b2&ex=6ac26fd7&is=6ac11e57&hm=6b63ae2ff27835ef2b9ba1e4df52b6126f91a5d9aa6a3c9310bcc7da33a72dee&=&format=webp&quality=lossless&width=1536&height=347" alt="DENNIS TIER" class="h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-200 drop-shadow-[0_2px_10px_rgba(244,114,182,0.4)]" onerror="this.onerror=null; this.src='https://api.iconify.design/twemoji:sword.svg';">
                     </a>
                     
                     <div class="hidden md:flex items-center space-x-8 text-sm font-bold">
@@ -282,7 +282,7 @@
         </div>
     </nav>
 
-    <!-- Main Content Container (Đã mở rộng max-width thành 1360px để bảng dài sang 2 bên) -->
+    <!-- Main Content Container -->
     <main class="flex-1 max-w-[1360px] w-full mx-auto px-4 sm:px-6 py-6 relative z-10">
         
         <div class="mb-14 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -310,12 +310,13 @@
                 
                 <!-- CONTAINER CHO CHẾ ĐỘ OVERALL -->
                 <div id="overallLeaderboardContent" class="p-4 sm:p-6">
-                    <div class="flex items-center text-sm font-black text-slate-300 tracking-wider uppercase px-4 py-3 bg-[#162032]/70 rounded-lg mb-3">
-                        <div class="w-14 text-center flex-shrink-0">#</div>
-                        <div class="w-[30%] sm:w-[26%] flex-shrink-0">PLAYER</div>
-                        <div class="w-32 sm:w-36 text-left flex-shrink-0">POINTS</div>
-                        <div class="flex-1">TIERS</div>
-                        <div class="w-16 text-center flex-shrink-0"></div>
+                    <!-- THAY ĐỔI KHOẢNG CÁCH CÁC CỘT Ở ĐÂY (Sử dụng cấu trúc chia cột cố định cho PLAYER & POINTS, đẩy TIERS sang phải) -->
+                    <div class="grid grid-cols-[80px_320px_200px_1fr_60px] items-center text-sm font-black text-slate-300 tracking-wider uppercase px-4 py-3 bg-[#162032]/70 rounded-lg mb-3">
+                        <div class="text-center">#</div>
+                        <div>PLAYER</div>
+                        <div class="text-left">POINTS</div>
+                        <div>TIERS</div>
+                        <div></div>
                     </div>
 
                     <div id="leaderboardBody" class="flex flex-col text-sm font-semibold">
@@ -910,24 +911,25 @@
                         `;
                     }).join('');
 
+                    // Cấu trúc hàng tương ứng với grid-cols bên trên
                     return `
-                        <div class="player-row flex flex-row items-center px-4 py-3.5" onclick="openPlayerModal('${player.username}')">
-                            <div class="w-14 text-center flex-shrink-0">${rankDisplay}</div>
-                            <div class="w-[30%] sm:w-[26%] flex-shrink-0">
+                        <div class="player-row grid grid-cols-[80px_320px_200px_1fr_60px] items-center px-4 py-3.5" onclick="openPlayerModal('${player.username}')">
+                            <div class="text-center">${rankDisplay}</div>
+                            <div>
                                 <div class="flex flex-row items-center space-x-3.5">
                                     <img src="${skinUrl}" alt="${player.username}" onerror="this.src='https://vzge.me/bust/220/Steve'" class="w-16 h-16 object-contain flex-shrink-0 drop-shadow-lg">
                                     <span class="font-extrabold text-white text-base group-hover:text-pink-400 transition-colors truncate">${player.username}</span>
                                 </div>
                             </div>
-                            <div class="w-32 sm:w-36 text-left flex-shrink-0">
+                            <div class="text-left">
                                 <span class="font-black text-xl text-pink-400 tracking-wide">${player.points}</span>
                             </div>
                             
-                            <div class="flex-1 horizontal-scroll-container py-1">
+                            <div class="horizontal-scroll-container py-1">
                                 <div class="flex items-center space-x-4 w-max">${badgesHtml}</div>
                             </div>
 
-                            <div class="w-16 text-center flex-shrink-0">
+                            <div class="text-center">
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button onclick="event.stopPropagation(); deletePlayer('${player.id}', '${player.username}')" class="text-slate-400 hover:text-rose-400 p-1.5 transition-colors text-sm ml-1" title="Xóa player"><i class="fa-solid fa-trash"></i></button>
                                 </div>
